@@ -105,6 +105,39 @@ def empty_state() ->State:
     result.append(((1, -2), 0))
     return result
 
+def initial_state() ->State:
+    result: State = []
+    #joueur 1
+    for i in [-1, -2, -3]:
+        for j in [-1, -2, -3]:
+            cell: Cell = (i,j)
+            result.append((cell, 1))
+    for i in [-2, - 3]:
+        result.append(((0,i),1))
+        result.append(((i, 0), 1))
+
+    #joueur 2
+    for i in [1, 2, 3]:
+        for j in [1, 2, 3]:
+            cell: Cell = (i,j)
+            result.append((cell, 2))
+    for i in [2, 3]:
+        result.append(((0,i),2))
+        result.append(((i,0),2))
+
+    #zone neutre
+    for i in [1, -1]:
+        result.append(((0, i), 0))
+        result.append(((i, 0), 0))
+    for i in [1, 2]:
+        result.append(((-1, i), 0))
+        result.append(((i, -1), 0))
+    result.append(((-2, 1), 0))
+    result.append(((1, -2), 0))
+    #resultat
+    return result
+
+
 
 def main():
     state = empty_state()
