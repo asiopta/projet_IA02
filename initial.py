@@ -231,6 +231,24 @@ def legals(state: State, tour: Player) -> list[ActionDodo]:
 def final(state: State, tour: Player) -> bool:
     return legals(state, tour) == 0
 
+def score(state: State) -> int:
+    if final(state, 1):
+        return 1
+    elif final(state, 2):
+        return -1
+
+def play(state: State, action: ActionDodo, tour: Player) -> State:
+    if action not in legals(state, tour):
+        print("erreur: action non légale")
+        return state
+    else:
+        grid = state_to_environnement(state)
+        grid[action[0]] = 0
+        grid[action[1]] = tour
+    return state
+
+
+
 
 def main():
     state = empty_state()
