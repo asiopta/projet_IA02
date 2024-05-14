@@ -42,22 +42,11 @@ def final_result(state: State, score: Score, player: Player) -> tuple[Player, St
 
 '''
 TODO:
-- déterminer les voisins d'une cellule données
-    voisins(cellule: Cell) -> list[Cell]
-- déterminer les moves éventuellements possibles en DODO:
-    voisins_Dodo(cellule: Cell) -> list[Cell]
-- déterminer les cellules où on peut bouger un pion:
-    voisins_libres(cellule: Cell, player: Player) -> list[Cell]
+- fonction qui inverse la position par rapport au couleur
+- fonction qui inverse la positions par rapport l'axe vertical
 
--fonctions qui renvoie toutes les actions possibles pour un joueur donné
-    legals(player: Player, state: State) -> list[ActionDodo]
--une fonction qui inverse l'environnement par rapport Joueur1/joueur2
-- une fonction qui détermine s'il s'agit d'un état final ou pas (pour un joueur donné)
-    final(state: State, player: Player) -> bool
-- une fonction qui donne le score (1 si maximizing_player won sinon -1)
-    score(state: State, player: Player) -> Score
-- une fonction qui applique un move (bouge un pion)
-    play(state: State, player:Player, action: ActionDodo) -> State
+- la fonction d'évaluation de la position
+
 - une fonction qui visualise l'état du jeu (affichage de l'hexagon)
     pprint(state: State) -> None
 - une fonction qui gère le jeu (le tour des joueurs)
@@ -246,8 +235,6 @@ def play(state: State, action: ActionDodo, tour: Player) -> State:
         grid[action[0]] = 0
         grid[action[1]] = tour
     return state
-
-
 
 
 def main():
