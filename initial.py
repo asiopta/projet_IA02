@@ -13,7 +13,7 @@ Player = int  # 1 ou 2
 State = list[tuple[Cell, Player]]  # État du jeu pour la boucle de jeu
 Score = int
 Time = int
-
+Taille = int 
 
 # Environment = dict{tuple(int, int): Player}
 
@@ -36,7 +36,7 @@ def strategy(env: Environment, state: State, player: Player, time_left: Time) ->
 
 def final_result(state: State, score: Score, player: Player) -> tuple[Player, State, Score]:
     '''Cette fonction est appelée à la fin du jeu
-    et revoie le joueur gagnant, l'état final et le score'''
+    et renvoie le joueur gagnant, l'état final et le score'''
     print()
 
 
@@ -63,13 +63,12 @@ pour chaque cellule sous forme (int, int), ca devient (int+3, int+3)
 '''
 
 
-# nos fonctions à nous
+# Nos fonctions à nous
 def state_to_environnement(state: State) -> Environment:
     result: dict = {}
     for item in state:
         result[item[0]] = item[1]
     return result
-
 
 def environnement_to_state(grid: Environment) -> State:
     result: State = []
@@ -79,26 +78,35 @@ def environnement_to_state(grid: Environment) -> State:
         result.append((key, value))
     return result
 
-
-def empty_state() -> State:
+def empty_state(n : Taille) -> State:
     """c'est pas du tout clean. Mais ca marche (je pense)"""
     # je pense que je vais la changer, c'est à voir
     result: State = []
-    for i in range(-3, 1, 1):
-        for j in range(-3, 1, 1):
+    n = n- 1 
+    for i in range(-n, 1, 1):
+        for j in range(-n, 1, 1):
             cell: Cell = (i, j)
             result.append((cell, 0))
-    for i in range(0, 3, 1):
-        for j in range(0, 3, 1):
+    for i in range(0, n + 1 , 1):
+        for j in range(0, n + 1, 1):
             if i == j == 0:
                 pass
-            cell: Cell = (i, j)
-            result.append((cell, 0))
-    for i in {1, 2}:
+            else : 
+                cell: Cell = (i, j)
+                result.append((cell, 0))
+            
+    for i in range(2, n):
+        
         result.append(((-1, i), 0))
         result.append(((i, -1), 0))
-    result.append(((-2, 1), 0))
-    result.append(((1, -2), 0))
+        result.append(((1, -i), 0))
+        result.append(((-i, 1), 0))
+    l =  n // 2 
+    for i in range(1,l+1) :
+        
+        result.append(((-i, i), 0))
+        result.append(((i, -i), 0))
+       
     return result
 
 
@@ -123,6 +131,7 @@ def initial_state() -> State:
         result.append(((i, 0), 2))
 
     # zone neutre
+    
     for i in [1, -1]:
         result.append(((0, i), 0))
         result.append(((i, 0), 0))
@@ -131,6 +140,7 @@ def initial_state() -> State:
         result.append(((i, -1), 0))
     result.append(((-2, 1), 0))
     result.append(((1, -2), 0))
+    
     # resultat
     return result
 
@@ -180,6 +190,7 @@ def voisins_Dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[C
 
         new_cell = (cell_mutable[0] + 1, cell_mutable[1] + 1)
         if new_cell in grid:
+            print(new_cell)
             result.append(new_cell)
         return result
 
@@ -236,15 +247,41 @@ def play(state: State, action: ActionDodo, tour: Player) -> State:
         grid[action[1]] = tour
     return state
 
-
 def main():
+    '''
     state = empty_state()
+    print(state)
+    print()
+    print(initial_state())
+    print()
     test = [((1, 0), 0), ((1, 2), 0), ((1, 3), 0)]
     print(test)
+    print()
     test2 = state_to_environnement(test)
     print(test2)
-    print(environnement_to_state(test2))
-
+    print()
+    print(environnement_to_state(test2))'''
+    print(empty_state(4),len(empty_state(4)))
+    
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
