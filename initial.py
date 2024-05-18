@@ -247,6 +247,26 @@ def play(state: State, action: ActionDodo, tour: Player) -> State:
         grid[action[1]] = tour
     return state
 
+
+def pprint(state: State, size: int):
+    """Pretty print the state of the hexagonal grid"""
+    sorted_state = sorted(state, key=lambda x: x[0][1], reverse=True)
+    real_size = size - 1
+    j: int = 0
+
+    for i in range(real_size, -real_size - 1, -1):
+        if i > 0:
+            print(i * "_ ", end="")
+        while sorted_state[j][0][1] == i:
+            print(sorted_state[j][1], end=" ")
+            j += 1
+            if j > len(sorted_state) - 1:
+                break
+        if i < 0:
+            print(abs(i) * "_ ", end="")
+        print("\n")
+
+
 def main():
     '''
     state = empty_state()
