@@ -1,6 +1,5 @@
-from typing import Union
-import fonctionscommunes as fc
-import matplotlib.pyplot as plt
+from common import*
+from typing import Union, Callable
 
 # Types de base utilisés par l'arbitre
 Environment = ...  # Ensemble des données utiles (cache, état de jeu...) pour
@@ -15,73 +14,9 @@ Player = int  # 1 ou 2
 State = list[tuple[Cell, Player]]  # État du jeu pour la boucle de jeu
 Score = int
 Time = int
-Taille = int 
+Taille = int
 
-# Environment = dict{tuple(int, int): Player}
-
-# fonctions communs à tt le monde
-def initialize(game: str, state: State, player: Player, hex_size: int, total_time: Time) -> Environment:
-    '''Cette fonction est lancée au début du jeu.
-    Elle dit à quel jeu on joue, le joueur que l'on est et renvoie l'environnement '''
-    maximizing_player: Player = player
-    if player == 1:
-        minimizing_player = 2
-    else:
-        minimizing_player = 1
-
-
-def strategy(env: Environment, state: State, player: Player, time_left: Time) -> tuple[Environment, Action]:
-    '''Cette fonction est la strategie qu'on utilise pour jouer.
-    Cette fonction est lancée à chaque fois que c'est à notre joueur de jouer.'''
-    print()
-
-
-def final_result(state: State, score: Score, player: Player) -> tuple[Player, State, Score]:
-    '''Cette fonction est appelée à la fin du jeu
-    et renvoie le joueur gagnant, l'état final et le score'''
-    print()
-
-
-'''
-TODO:
-- fonction qui inverse la position par rapport au couleur
-- fonction qui inverse la positions par rapport l'axe vertical
-
-- la fonction d'évaluation de la position
-
-- une fonction qui visualise l'état du jeu (affichage de l'hexagon)
-    pprint(state: State) -> None
-- une fonction qui gère le jeu (le tour des joueurs)
-    Dodo(strategy_1, strategy_2) -> Score
-
-'''
-
-'''
-Jeux DODO:
-on peut utiliser comme structure list[list[Player]]
-Pour cela, on doit faire un convertissement de coordonnées
-pour chaque cellule sous forme (int, int), ca devient (int+3, int+3)
-
-'''
-
-
-# Nos fonctions à nous
-def state_to_environnement(state: State) -> Environment:
-    result: dict = {}
-    for item in state:
-        result[item[0]] = item[1]
-    return result
-
-def environnement_to_state(grid: Environment) -> State:
-    result: State = []
-    for key, value in grid.items():
-        # print(key)
-        # print(value)
-        result.append((key, value))
-    return result
-
-
-def initial_state() -> State:
+def initial_state_dodo() -> State:
     result: State = []
     # joueur 1
     for i in [-1, -2, -3]:
@@ -102,7 +37,7 @@ def initial_state() -> State:
         result.append(((i, 0), 2))
 
     # zone neutre
-    
+
     for i in [1, -1]:
         result.append(((0, i), 0))
         result.append(((i, 0), 0))
@@ -111,41 +46,9 @@ def initial_state() -> State:
         result.append(((i, -1), 0))
     result.append(((-2, 1), 0))
     result.append(((1, -2), 0))
-    
+
     # resultat
     return result
-
-# faut review et tester toutes les fonctions ci dessous
-def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
-    result: list[Cell] = []
-    cell_mutable = [cellule[0], cellule[1]]
-
-    new_cell = (cell_mutable[0], cell_mutable[1] + 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] + 1, cell_mutable[1])
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] + 1, cell_mutable[1] + 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0], cell_mutable[1] - 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] - 1, cell_mutable[1])
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] - 1, cell_mutable[1] - 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    return result
-
 
 def voisins_Dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[Cell]:
     result: list[Cell] = []
@@ -181,7 +84,7 @@ def voisins_Dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[C
         return result
 
 
-def voisins_libres(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[Cell]:
+def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[Cell]:
     voisins: list[Cell] = voisins_Dodo(cellule_dodo, grid)
     result: list[Cell] = []
     for cell in voisins:
@@ -190,26 +93,29 @@ def voisins_libres(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list
     return result
 
 
-def legals(state: State, tour: Player) -> list[ActionDodo]:
+def legals_dodo(state: State, tour: Player) -> list[ActionDodo]:
     result: list[ActionDodo] = []
     for cell in state:
         while cell[1] == tour:
-            voisins = voisins_libres(cell, state_to_environnement(state))
+            voisins = voisins_libres_dodo(cell, state_to_environnement(state))
             for voisin in voisins:
                 result.append((cell[0], voisin))
     return result
 
-def final(state: State, tour: Player) -> bool:
-    return legals(state, tour) == 0
 
-def score(state: State) -> int:
-    if final(state, 1):
+def final_dodo(state: State, tour: Player) -> bool:
+    return legals_dodo(state, tour) == 0
+
+
+def score_dodo(state: State) -> int:
+    if final_dodo(state, 1):
         return 1
-    elif final(state, 2):
+    elif final_dodo(state, 2):
         return -1
 
-def play(state: State, action: ActionDodo, tour: Player) -> State:
-    if action not in legals(state, tour):
+
+def play_dodo(state: State, action: ActionDodo, tour: Player) -> State:
+    if action not in legals_dodo(state, tour):
         print("erreur: action non légale")
         return state
     else:
@@ -217,65 +123,99 @@ def play(state: State, action: ActionDodo, tour: Player) -> State:
         grid[action[0]] = 0
         grid[action[1]] = tour
     return state
-
+'''
+def alphabeta(node: State, depth: int, a: float,
+              b: float, maximizing_player: bool) -> float:
+    if depth == 0 or node is a terminal node:
+        return the heuristic value of node
+    if maximizing_player:
+        value = −∞
+        for each child of node:
+            value = max(value, alphabeta(child, depth − 1, α, β, False))
+            α = max(α, value)
+            if α ≥ β:
+                break # β cut-off
+        return value
+    else: # minimizing player
+        value = +∞
+        for each child of node:
+            value = min(value, alphabeta(child, depth − 1, α, β, True))
+            β = min(β, value)
+            if α ≥ β:
+                break # α cut-off
+        return value
 
 '''
-def minmax(grid: State, player: Player) -> float :
-    
-    if final(grid,player) : 
-        return score(grid)
-    if player == 2 : 
-        #maximizing player
-        bestValue =  - 1000
-        for action in legals(grid,player) :
-            bestValue = max(bestValue,minmax(play(grid,player,action),1))
-        return bestValue
-        
-    if player == 1 : 
-        #minimizing player 
-        bestValue = + 1000
-        for action in legals(grid,player) : 
-             bestValue = min(bestValue,minmax(play(grid,player,action),2))
-        return bestValue
-'''
+# stratégie alpha-beta
+def alphabeta_dodo_joueur1(grid: State, player: Player, alpha: float = -1000, beta: float = 1000) -> float:
+    if final_dodo(grid, player):
+        return score_dodo(grid)
+    if player == 1:
+        value = -100
+        for action in legals_dodo(grid, player):
+            value = max(value, alphabeta_dodo_joueur1(play_dodo(grid, action, player), 2, alpha, beta))
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value
+    else:
+        value = 100
+        for action in legals_dodo(grid, player):
+            value = min(value, alphabeta_dodo_joueur1(play_dodo(grid, action, player), 1, alpha, beta))
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return value
 
 
-def main():
-    '''
-    state = empty_state()
-    print(state)
+def alphabeta_dodo_joueur2(grid: State, player: Player, alpha: float = -1000, beta: float = 1000) -> float:
+    if final_dodo(grid, player):
+        return score_dodo(grid)
+    if player == 2:
+        value = -100
+        for action in legals_dodo(grid, player):
+            value = max(value, alphabeta_dodo_joueur2(play_dodo(grid, action, player), 1, alpha, beta))
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value
+    else:
+        value = 100
+        for action in legals_dodo(grid, player):
+            value = min(value, alphabeta_dodo_joueur2(play_dodo(grid, action, player), 2, alpha, beta))
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return value
+
+def alphabeta_action(grid: State, player: Player, alpha=-100, beta=100) -> tuple[float, Action]:
+    """alphabeta avec action"""
+    if final_dodo(grid, player):
+        return score_dodo(grid), (3, 3)
+    if player == 1:
+        best_action: Action = legals_dodo(grid, player)[0]
+        best_score: float = -2
+        for action in legals_dodo(grid, player):
+            bla = alphabeta_dodo(play_dodo(grid, action, player), 2, alpha, beta)
+            if bla > best_score:
+                best_score = bla
+                best_action = action
+    else:
+        best_action: Action = legals_dodo(grid, player)[0]
+        best_score: float = 2
+        for action in legals_dodo(grid, player):
+            bla = alphabeta_dodo(play_dodo(grid, action, player), 1, alpha, beta)
+            if bla < best_score:
+                best_score = bla
+                best_action = action
+
+    return best_score, best_action
+
+
+def strategy_alphabeta(grid: State, player: Player) -> Action:
+    best_score, best_action = alphabeta_action(grid, player)
+    return best_action
+
+
+def code_unique_dodo():
     print()
-    print(initial_state())
-    print()
-    test = [((1, 0), 0), ((1, 2), 0), ((1, 3), 0)]
-    print(test)
-    print()
-    test2 = state_to_environnement(test)
-    print(test2)
-    print()
-    print(environnement_to_state(test2))'''
-   # print(empty_state(4),len(empty_state(4)))
-    #print(fc.empty_state(4))
-  #  print(fc.empty_state(7),7)
-    
-if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
