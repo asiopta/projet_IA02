@@ -1,20 +1,4 @@
 from common import *
-from typing import Union, Callable
-
-# Types de base utilisés par l'arbitre
-Environment = ...  # Ensemble des données utiles (cache, état de jeu...) pour
-# que votre IA puisse jouer (objet, dictionnaire, autre...)
-
-
-Cell = tuple[int, int]
-ActionGopher = Cell
-ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
-Action = Union[ActionGopher, ActionDodo]
-Player = int  # 1 ou 2
-State = list[tuple[Cell, Player]]  # État du jeu pour la boucle de jeu
-Score = int
-Time = int
-Taille = int
 
 
 def initial_state_dodo() -> State:
@@ -90,7 +74,7 @@ def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) ->
     voisins: list[Cell] = voisins_Dodo(cellule_dodo, grid)
     result: list[Cell] = []
     for cell in voisins:
-        if grid(cell) == 0:
+        if grid[cell] == 0:
             result.append(cell)
     return result
 
