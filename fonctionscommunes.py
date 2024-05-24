@@ -13,19 +13,23 @@ Score = int
 Time = int
 Taille = int
 
-Environment = dict[Cell, Player]  # Ensemble des données utiles (cache, état de jeu...) pour
-
-
+Environment = dict[Cell, Player]
+# Ensemble des données utiles (cache, état de jeu...) pour
 # que votre IA puisse jouer (objet, dictionnaire, autre...)
 
+Strategy = Callable[[State, Player], Action]
 
-# Environment = dict{tuple(int, int): Player}
+
+maximizing_player: Player
+minimizing_player: Player
+
 
 # fonctions communs à tt le monde
 def initialize(game: str, state: State, player: Player, hex_size: int, total_time: Time) -> Environment:
     '''Cette fonction est lancée au début du jeu.
     Elle dit à quel jeu on joue, le joueur que l'on est et renvoie l'environnement '''
-    maximizing_player: Player = player
+    global maximizing_player, minimizing_player
+    maximizing_player = player
     if player == 1:
         minimizing_player = 2
     else:
@@ -83,34 +87,13 @@ def environnement_to_state(grid: Environment) -> State:
     return result
 
 
-def empty_state(n: Taille) -> State:
-    """appliquable pour gopher"""
-    result: State = []
-    n = n - 1
-    for i in range(-n, 1, 1):
-        for j in range(-n, 1, 1):
-            cell: Cell = (i, j)
-            result.append((cell, 0))
-    for i in range(0, n + 1, 1):
-        for j in range(0, n + 1, 1):
-            if i == j == 0:
-                pass
-            else:
-                cell: Cell = (i, j)
-                result.append((cell, 0))
-
-    for i in range(2, n):
-        result.append(((-1, i), 0))
-        result.append(((i, -1), 0))
-        result.append(((1, -i), 0))
-        result.append(((-i, 1), 0))
-    l = n // 2
-    for i in range(1, l + 1):
-        result.append(((-i, i), 0))
-        result.append(((i, -i), 0))
-
-    return result
-
+def adversaire(player: Player) -> Player:
+    if player == 1:
+        return 2
+    elif player == 2:
+        return 1
+    else:
+        return 0
 
 def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
     """appliquable pour dodo et gopher"""
@@ -144,6 +127,35 @@ def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
     return result
 
 
+def empty_state(n: Taille) -> State:
+    """appliquable pour gopher"""
+    result: State = []
+    n = n - 1
+    for i in range(-n, 1, 1):
+        for j in range(-n, 1, 1):
+            cell: Cell = (i, j)
+            result.append((cell, 0))
+    for i in range(0, n + 1, 1):
+        for j in range(0, n + 1, 1):
+            if i == j == 0:
+                pass
+            else:
+                cell: Cell = (i, j)
+                result.append((cell, 0))
+
+    for i in range(2, n):
+        result.append(((-1, i), 0))
+        result.append(((i, -1), 0))
+        result.append(((1, -i), 0))
+        result.append(((-i, 1), 0))
+    l = n // 2
+    for i in range(1, l + 1):
+        result.append(((-i, i), 0))
+        result.append(((i, -i), 0))
+
+    return result
+
+
 def pprint(state: State, size: int):
     """Pretty print the state of the hexagonal grid
     appliquable pour DODO et Gopher"""
@@ -168,23 +180,25 @@ def pprint(state: State, size: int):
 TO REVIEW/TEST: 
     - hashage de zobrist: amen  //review
     - fonction de hashage: amen //review
+    
+    //on va probablement utiliser ces 2 fonctions avec une profondeur limitée
+    -alphabeta_dodo_depth
+    -alpha_beta_action
+    -strategy_alphabeta_dodo
 
 TODO:
     AMEN
     - fonction d'évaluation: amen
     
-    //on va probablement utiliser ces 2 fonctions avec une profondeur limitée
-    -alphabeta_dodo
-    -alpha_beta_action
-    -strategy_alphabeta_dodo
+
     
 
     
     
 '''
 
-#seed, une valeur globale initialisé à une valeur random,
-#qui permettra la generation de valaurs pseudo-aléatoires
+# seed, une valeur globale initialisé à une valeur random,
+# qui permettra la generation de valaurs pseudo-aléatoires
 seed: int = 12497846486
 
 
@@ -206,17 +220,18 @@ def state_keys(state: State):
         res[(item[0], 2)] = generate_random_value()
     return res
 
+
 # un dictionnaire contenant la valeur unique de chaque Combinaison (Cellule, Player) possible
-unique_values = state_keys(empty_state(4))
+UNIQUE_VALUES = state_keys(empty_state(4))
 
 
-def hash_zobrist(state: State)-> int:
+def hash_zobrist(state: State) -> int:
     """ retourne la valeur hashée du state
      cette valeur est à priori unique pour chaque state différent"""
     h = 0
     for item in state:
         if item[1] != 0:
-            h ^= unique_values[item]
+            h ^= UNIQUE_VALUES[item]
     return h
 
 
@@ -235,8 +250,6 @@ def memoize(
 
     return g
 
-def evaluation_state()->float:
-    return 5
 
 def main():
     '''
@@ -252,9 +265,7 @@ def main():
     print(test2)
     print()
     print(environnement_to_state(test2))'''
-    print(empty_state(4), len(empty_state(4)))
-    global unique_values
-    unique_values = state_keys(empty_state(4))
+
 
 
 if __name__ == "__main__":
