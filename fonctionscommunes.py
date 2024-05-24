@@ -250,23 +250,3 @@ def memoize(
 
     return g
 
-
-def main():
-    '''
-    state = empty_state()
-    print(state)
-    print()
-    print(initial_state())
-    print()
-    test = [((1, 0), 0), ((1, 2), 0), ((1, 3), 0)]
-    print(test)
-    print()
-    test2 = state_to_environnement(test)
-    print(test2)
-    print()
-    print(environnement_to_state(test2))'''
-
-
-
-if __name__ == "__main__":
-    main()
