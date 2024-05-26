@@ -296,8 +296,20 @@ def inverse_colors(grid: State) :
     return state
 
 
-            
-    
+def symetrie_origine(cellule : Cell):
+    q, r = cellule
+    return (-q, -r)
+
+
+def inverser_positions_par_symetrie_origine(state : State) -> State:
+    nouvelles_positions = {}
+    grid = state_to_environnement(state)
+    for (coord, couleur) in grid.items():
+        coord_sym = symetrie_origine(coord)
+        nouvelles_positions[coord_sym] = couleur
+    return environnement_to_state(nouvelles_positions)
+
+
 
 
 
