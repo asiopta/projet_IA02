@@ -13,7 +13,7 @@ Score = int
 Time = int
 Taille = int
 Strategy = Callable[[State, Player], Action]
-
+Environment = dict[tuple[int,int],int]
 maximizing_player: Player
 minimizing_player: Player
 
@@ -268,3 +268,25 @@ def memoize(
 
     return g
 
+'''
+def vertical_symeric_point(cell:Cell) : 
+        q, r = cellule
+        return (-q, r)
+'''
+    
+def inverse_vertical_axis(state : State) : 
+    
+    for cellule,valeur in state.items() : 
+        q, r = cellule
+        State = state_to_environnement(state) 
+        cellule = State[(q,r)]  
+        State[(q,r)] = State[(-q,r)] 
+        State[(-q,r)] = cellule 
+
+    return environnement_to_state(State)
+
+
+
+
+
+    
