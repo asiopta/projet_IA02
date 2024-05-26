@@ -81,9 +81,10 @@ def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) ->
 
 def legals_dodo(state: State, tour: Player) -> list[ActionDodo]:
     result: list[ActionDodo] = []
+    grid: Environment = state_to_environnement(state)
     for cell in state:
         while cell[1] == tour:
-            voisins = voisins_libres_dodo(cell, state_to_environnement(state))
+            voisins = voisins_libres_dodo(cell, grid)
             for voisin in voisins:
                 result.append((cell[0], voisin))
     return result
@@ -109,7 +110,7 @@ def play_dodo(state: State, action: ActionDodo, tour: Player) -> State:
         grid = state_to_environnement(state)
         grid[action[0]] = 0
         grid[action[1]] = tour
-    return state
+    return environnement_to_state(grid)
 
 
 def evaluation_state_dodo(state: State) -> float:  # à faire
