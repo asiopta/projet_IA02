@@ -1,4 +1,4 @@
-from common import *
+from fonctionscommunes import *
 
 
 def initial_state_dodo() -> State:

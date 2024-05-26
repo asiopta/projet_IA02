@@ -12,13 +12,7 @@ State = list[tuple[Cell, Player]]  # État du jeu pour la boucle de jeu
 Score = int
 Time = int
 Taille = int
-
-Environment = dict[Cell, Player]
-# Ensemble des données utiles (cache, état de jeu...) pour
-# que votre IA puisse jouer (objet, dictionnaire, autre...)
-
 Strategy = Callable[[State, Player], Action]
-
 
 maximizing_player: Player
 minimizing_player: Player
@@ -95,6 +89,7 @@ def adversaire(player: Player) -> Player:
     else:
         return 0
 
+'''
 def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
     """appliquable pour dodo et gopher"""
     result: list[Cell] = []
@@ -123,6 +118,29 @@ def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
     new_cell = (cell_mutable[0] - 1, cell_mutable[1] - 1)
     if new_cell in grid:
         result.append(new_cell)
+
+    return result
+'''
+
+def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
+    """Applicable for dodo and gopher."""
+    result: list[Cell] = []
+    x, y = cellule
+
+    # Define the six possible neighbors based on your function's logic
+    neighbors = [
+        (x, y + 1),
+        (x + 1, y),
+        (x + 1, y + 1),
+        (x, y - 1),
+        (x - 1, y),
+        (x - 1, y - 1)
+    ]
+
+    # Check if each neighbor is within the grid and add to the result
+    for new_cell in neighbors:
+        if new_cell in grid:
+            result.append(new_cell)
 
     return result
 
