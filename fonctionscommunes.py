@@ -274,18 +274,30 @@ def vertical_symeric_point(cell:Cell) :
         return (-q, r)
 '''
     
-def inverse_vertical_axis(state : State) : 
+def inverse_vertical_axis(grid : State) : 
     
+    state = state_to_environnement(grid)
     for cellule,valeur in state.items() : 
         q, r = cellule
-        State = state_to_environnement(state) 
         cellule = State[(q,r)]  
         State[(q,r)] = State[(-q,r)] 
         State[(-q,r)] = cellule 
 
     return environnement_to_state(State)
 
+def inverse_colors(grid: State) : 
+    
+    state = state_to_environnement(grid)
+    for cellule,valeur in state.items() :
+        if valeur == 1 : 
+            state[cellule] = 2 
+        if valeur == 2 : 
+            state[cellule] = 1 
+    return state
 
+
+            
+    
 
 
 
