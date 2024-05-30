@@ -255,22 +255,6 @@ def hash_zobrist(state: State) -> int:
     return h
 
 
-def memoize(
-        f: Callable[[State, Player], tuple[Score, Action]]
-) -> Callable[[State, Player], tuple[Score, Action]]:
-    cache = {}  # closure
-
-    def g(state: State, player: Player):
-        hashed_value: int = hash_zobrist(state)
-        if hashed_value in cache:
-            return cache[hashed_value]
-        val = f(state, player)
-        cache[hashed_value] = val
-        return val
-
-    return g
-
-
 '''
 def vertical_symeric_point(cell:Cell) : 
         q, r = cellule
@@ -301,7 +285,7 @@ def inverse_colors(state: State):
 
 def symetrie_origine(cellule: Cell):
     q, r = cellule
-    return (-q, -r)
+    return tuple(-q, -r)
 
 
 def inverser_positions_par_symetrie_origine(state: State) -> State:
@@ -313,6 +297,28 @@ def inverser_positions_par_symetrie_origine(state: State) -> State:
     return environnement_to_state(nouvelles_positions)
 
 
+def generate_symmetric_states(state: State) -> [State]:
+    return [state,
+            inverse_vertical_axis(state),
+            inverse_colors(state),
+            inverser_positions_par_symetrie_origine(state)]
 
 
+def memoize(f: Callable[[State, Player], tuple[Score, Action]]) -> Callable[[State, Player], tuple[Score, Action]]:
+    cache: dict[int, tuple[Score, Action]] = {}  # closure
 
+    def g(state: State, player: Player) -> tuple[Score, Action]:
+        symmetric_states = generate_symmetric_states(state)
+        hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
+
+        for hashed_value in hashed_values:
+            if hashed_value in cache:
+                return cache[hashed_value]
+
+        val = f(state, player)
+        for hashed_value in hashed_values:
+            cache[hashed_value] = val
+
+        return val
+
+    return g
