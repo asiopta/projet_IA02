@@ -1,60 +1,5 @@
-from typing import Union
 from fonctionscommunes import *
 
-#print(empty_state(7))
-
-
-
-def one_ennemy_connection(cell: Cell,player:Player, grid : State) -> bool  : 
-    
-    State = state_to_environnement(grid)
-    voisins = voisins(cell,State)
-    nb_ennemies_connection = 0
-    
-    for i in voisins : 
-        
-        if State[i] != Player and State[i] != 0 : 
-            
-            nb_ennemies_connection = nb_ennemies_connection + 1
-    
-    if nb_ennemies_connection == 1 : return True
-    return False
-
-
-def friendy_connection(cell: Cell,player:Player, grid : State) -> bool  : 
-    State =  state_to_environnement(grid)
-    voisins = voisins(cell,grid)
-    
-    for i in voisins : 
-        
-        if State[i] == Player :  return True
-    
-    return False
-            
-
-def legals_Gopher(grid:State,player:Player) -> list[Cell] : 
-    
-    state =  state_to_environnement(grid)
-
-    vide = True
-    for i,j in state.items() : 
-         if j != 0 : vide = False
-    
-    if vide :
-        return list(state.keys())
-    
-    legals = []
-    
-    for i,j in state.enumerate() : 
-        
-        if not friendy_connection(i,player,state) and  one_ennemy_connection(i,player,state) : 
-            legals.append(i)
-    return legals
-
- 
-print(legals_Gopher(empty_state(7),1))
-            
-           
 """
     begins the game by placing a stone anywhere on the board. Then, starting
 with Blue, players take turns placing a stone which forms exactly one enemy
@@ -123,11 +68,12 @@ def final_gopher(state: State, tour: Player) -> bool:
         return True
     return False
 
-def score_gopher(state: State, tour:Player) -> Score:
+
+def score_gopher(state: State, tour: Player) -> Score:
     if final_gopher(state, tour):
-        if tour == 1:  #joueur1 a perdu
+        if tour == 1:  # joueur1 a perdu
             return -1
-        else: #joueur1 a gagné
+        else:  # joueur1 a gagné
             return 1
 
 
@@ -139,3 +85,16 @@ def play_gopher(state: State, action: ActionGopher, tour: Player) -> State:
         grid = state_to_environnement(state)
         grid[action] = tour
     return environnement_to_state(grid)
+
+
+def evaluation_state_gopher(state: State, tour: Player) -> float:  # à faire
+    """fonction d'évaluation de l'état d'un jeu DODO"""
+    nb_legals_player: int = len(legals_gopher(state, tour)) - 1
+    nb_legals_adversaire: int = len(legals_gopher(state, adversaire(tour)))
+    if nb_legals_player == 0:
+        return -1
+    elif nb_legals_adversaire == 0:
+        return 1
+    else:
+        diff_int = nb_legals_player - nb_legals_adversaire
+        return -diff_int / 100
