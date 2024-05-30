@@ -13,7 +13,7 @@ Score = int
 Time = int
 Taille = int
 Strategy = Callable[[State, Player], Action]
-Environment = dict[tuple[int,int],int]
+Environment = dict[tuple[int, int], int]
 maximizing_player: Player
 minimizing_player: Player
 
@@ -50,8 +50,8 @@ ISMAT
 - fonction qui inverse la positions par rapport l'axe vertical
 - une fonction qui gère le jeu (le tour des joueurs)
     Dodo(strategy_1, strategy_2) -> Score
-    
-    
+
+
 //meme chose pr gopher
     - legals_gopher()
     - final_gopher()
@@ -89,6 +89,7 @@ def adversaire(player: Player) -> Player:
     else:
         return 0
 
+
 '''
 def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
     """appliquable pour dodo et gopher"""
@@ -121,6 +122,7 @@ def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
 
     return result
 '''
+
 
 def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
     """Applicable for dodo and gopher."""
@@ -198,7 +200,7 @@ def pprint(state: State, size: int):
 TO REVIEW/TEST: 
     - hashage de zobrist: amen  //review
     - fonction de hashage: amen //review
-    
+
     //on va probablement utiliser ces 2 fonctions avec une profondeur limitée
     -alphabeta_dodo_depth
     -alpha_beta_action
@@ -207,12 +209,12 @@ TO REVIEW/TEST:
 TODO:
     AMEN
     - fonction d'évaluation: amen
-    
 
-    
 
-    
-    
+
+
+
+
 '''
 
 # seed, une valeur globale initialisé à une valeur random,
@@ -268,40 +270,41 @@ def memoize(
 
     return g
 
+
 '''
 def vertical_symeric_point(cell:Cell) : 
         q, r = cellule
         return (-q, r)
 '''
-    
-def inverse_vertical_axis(grid : State) : 
-    
-    state = state_to_environnement(grid)
-    for cellule,valeur in state.items() : 
+
+
+def inverse_vertical_axis(state: State):
+    grid = state_to_environnement(state)
+    for cellule, valeur in grid.items():
         q, r = cellule
-        cellule = State[(q,r)]  
-        State[(q,r)] = State[(-q,r)] 
-        State[(-q,r)] = cellule 
+        cellule = grid[(q, r)]
+        grid[(q, r)] = grid[(-q, r)]
+        grid[(-q, r)] = cellule
 
-    return environnement_to_state(State)
-
-def inverse_colors(grid: State) : 
-    
-    state = state_to_environnement(grid)
-    for cellule,valeur in state.items() :
-        if valeur == 1 : 
-            state[cellule] = 2 
-        if valeur == 2 : 
-            state[cellule] = 1 
-    return state
+    return environnement_to_state(grid)
 
 
-def symetrie_origine(cellule : Cell):
+def inverse_colors(state: State):
+    grid = state_to_environnement(state)
+    for cellule, valeur in grid.items():
+        if valeur == 1:
+            grid[cellule] = 2
+        if valeur == 2:
+            grid[cellule] = 1
+    return environnement_to_state(grid)
+
+
+def symetrie_origine(cellule: Cell):
     q, r = cellule
     return (-q, -r)
 
 
-def inverser_positions_par_symetrie_origine(state : State) -> State:
+def inverser_positions_par_symetrie_origine(state: State) -> State:
     nouvelles_positions = {}
     grid = state_to_environnement(state)
     for (coord, couleur) in grid.items():
@@ -313,4 +316,3 @@ def inverser_positions_par_symetrie_origine(state : State) -> State:
 
 
 
-    
