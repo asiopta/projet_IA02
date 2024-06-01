@@ -1,5 +1,5 @@
 from typing import Union, Callable
-
+import random
 # Types de base utilisés par l'arbitre
 
 
