@@ -154,12 +154,12 @@ def alphabeta_gopher_depth(state: State, tour: Player, depth: int, alpha: float,
 
 
 @memoize
-def alphabeta_action_gopher(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, Action]:
+def alphabeta_action_gopher(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, ActionGopher]:
     """alphabeta avec action avec depth illimité"""
     if final_gopher(state, tour):
         return score_gopher(state, tour), (4, 4)
     if tour == maximizing_player:
-        best_action: Action = legals_gopher(state, tour)[0]
+        best_action: ActionGopher = legals_gopher(state, tour)[0]
         best_score: float = -10000
         for action in legals_gopher(state, tour):
             bla = alphabeta_gopher(play_gopher(state, action, tour), minimizing_player, alpha, beta)
@@ -167,7 +167,7 @@ def alphabeta_action_gopher(state: State, tour: Player, alpha=-100, beta=100) ->
                 best_score = bla
                 best_action = action
     else:
-        best_action: Action = legals_gopher(state, tour)[0]
+        best_action: ActionGopher = legals_gopher(state, tour)[0]
         best_score: float = 10000
         for action in legals_gopher(state, tour):
             bla = alphabeta_gopher(play_gopher(state, action, tour), maximizing_player, alpha, beta)
@@ -179,12 +179,12 @@ def alphabeta_action_gopher(state: State, tour: Player, alpha=-100, beta=100) ->
 
 
 @memoize
-def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, Action]:
+def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, ActionGopher]:
     """alphabeta avec action avec depth limité"""
     if final_gopher(state, tour):
         return score_gopher(state, tour), (4, 4)
     if tour == maximizing_player:
-        best_action: Action = legals_gopher(state, tour)[0]
+        best_action: ActionGopher = legals_gopher(state, tour)[0]
         best_score: float = -10000
         for action in legals_gopher(state, tour):
             bla = alphabeta_gopher_depth(play_gopher(state, action, tour), minimizing_player, 10, alpha, beta)
@@ -192,7 +192,7 @@ def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-100, beta=1
                 best_score = bla
                 best_action = action
     else:
-        best_action: Action = legals_gopher(state, tour)[0]
+        best_action: ActionGopher = legals_gopher(state, tour)[0]
         best_score: float = 10000
         for action in legals_gopher(state, tour):
             bla = alphabeta_gopher_depth(play_gopher(state, action, tour), maximizing_player, 10, alpha, beta)
@@ -203,10 +203,13 @@ def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-100, beta=1
     return best_score, best_action
 
 
-def strategy_alphabeta_gopher(state: State, tour: Player) -> Action:
+def strategy_alphabeta_gopher(state: State, tour: Player) -> ActionGopher:
     best_score, best_action = alphabeta_action_gopher(state, tour)
     return best_action
 
+def stategy_random_gopher(state: State, tour: Player) -> ActionGopher:
+    legal_actions: list[ActionGopher] = legals_gopher(state, tour)
+    return random.choice(legal_actions)
 
 def gopher(strategy_X: Strategy, strategy_O: Strategy, size: int) -> Score:
     state: State = empty_state(size)
