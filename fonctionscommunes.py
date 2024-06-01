@@ -40,6 +40,7 @@ def final_result(state: State, score: Score, player: Player) -> tuple[Player, St
     '''Cette fonction est appelée à la fin du jeu
     et renvoie le joueur gagnant, l'état final et le score'''
     print()
+    
 
 
 '''
