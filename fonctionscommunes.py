@@ -180,7 +180,7 @@ def empty_state(n: Taille) -> State:
 def pprint(state: State, size: int):
     """Pretty print the state of the hexagonal grid
     appliquable pour DODO et Gopher"""
-    sorted_state = sorted(state, key=lambda x: x[0][1], reverse=True)
+    sorted_state = sorted(state, key=lambda x: (-x[0][1], x[0][0]))
     real_size = size - 1
     j: int = 0
 
@@ -188,6 +188,7 @@ def pprint(state: State, size: int):
         if i > 0:
             print(i * "_ ", end="")
         while sorted_state[j][0][1] == i:
+            #print(sorted_state[j][0], sorted_state[j][1], end=" ")
             print(sorted_state[j][1], end=" ")
             j += 1
             if j > len(sorted_state) - 1:
@@ -195,6 +196,7 @@ def pprint(state: State, size: int):
         if i < 0:
             print(abs(i) * "_ ", end="")
         print("\n")
+
 
 
 '''
