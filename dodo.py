@@ -84,18 +84,21 @@ def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) ->
 def legals_dodo(state: State, tour: Player) -> list[ActionDodo]:
     result: list[ActionDodo] = []
     grid: Environment = state_to_environnement(state)
-    for cell in state:
-        while cell[1] == tour:
-            voisins = voisins_libres_dodo(cell, grid)
-            for voisin in voisins:
-                result.append((cell[0], voisin))
+
+    # Lescellules appartenant au joueur 
+    player_cells = [cell for cell in state if cell[1] == tour]
+    for cell in player_cells:
+        voisins = voisins_libres_dodo(cell, grid)
+        for voisin in voisins:
+            result.append((cell[0], voisin))
+
     return result
 
 
 def final_dodo(state: State, tour: Player) -> bool:
-    return legals_dodo(state, tour) == 0
+    return legals_dodo(state, tour) == []
 
-
+###A VERIFIER LE RESTE ENCORE 
 def score_dodo(state: State, tour: Player) -> int:
     if final_dodo(state, tour):
         if tour == 1:
