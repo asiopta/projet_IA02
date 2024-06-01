@@ -179,10 +179,10 @@ def alphabeta_dodo_depth(state: State, tour: Player, depth: int, alpha: float, b
 
 
 @memoize
-def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, Action]:
+def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, ActionDodo]:
     """alphabeta avec action avec depth illimité"""
     if final_dodo(state, tour):
-        return score_dodo(state, tour), (4, 4)
+        return score_dodo(state, tour), ((4, 4), (4, 4))
     if tour == maximizing_player:
         best_action: Action = legals_dodo(state, tour)[0]
         best_score: float = -10000
@@ -204,7 +204,7 @@ def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> t
 
 
 @memoize
-def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, Action]:
+def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, ActionDodo]:
     """alphabeta avec action avec depth limité"""
     if final_dodo(state, tour):
         return score_dodo(state, tour), (4, 4)
@@ -228,9 +228,13 @@ def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100
     return best_score, best_action
 
 
-def strategy_alphabeta_dodo(state: State, tour: Player) -> Action:
+def strategy_alphabeta_dodo(state: State, tour: Player) -> ActionDodo:
     best_score, best_action = alphabeta_action_dodo(state, tour)
     return best_action
+
+def strategy_random_dodo(state: State, tour: Player) -> ActionDodo:
+    legal_actions: list[ActionDodo] = legals_dodo(state, tour)
+    return random.choice(legal_actions)
 
 
 # boucle de jeu
