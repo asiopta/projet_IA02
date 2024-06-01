@@ -98,14 +98,12 @@ def legals_dodo(state: State, tour: Player) -> list[ActionDodo]:
 def final_dodo(state: State, tour: Player) -> bool:
     return legals_dodo(state, tour) == []
 
-###A VERIFIER LE RESTE ENCORE 
 def score_dodo(state: State, tour: Player) -> int:
     if final_dodo(state, tour):
         if tour == 1:
             return 1
         else:
             return -1
-
 
 def play_dodo(state: State, action: ActionDodo, tour: Player) -> State:
     if action not in legals_dodo(state, tour):
@@ -116,7 +114,7 @@ def play_dodo(state: State, action: ActionDodo, tour: Player) -> State:
         grid[action[0]] = 0
         grid[action[1]] = tour
     return environnement_to_state(grid)
-
+         
 
 def evaluation_state_dodo(state: State, tour: Player) -> float:  # à faire
     """fonction d'évaluation de l'état d'un jeu DODO"""
@@ -127,9 +125,10 @@ def evaluation_state_dodo(state: State, tour: Player) -> float:  # à faire
     elif nb_legals_adversaire == 0:
         return -1
     else:
-        diff_int = nb_legals_player - nb_legals_adversaire
-        return diff_int / 100
+        diff_int =  nb_legals_adversaire - nb_legals_player
+        return diff_int /(nb_legals_adversaire + nb_legals_player)
 
+###A VERIFIER LE RESTE ENCORE 
 
 # stratégie alpha-beta
 def alphabeta_dodo(state: State, tour: Player, alpha: float = -1000, beta: float = 1000) -> float:
@@ -258,9 +257,7 @@ def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
     return score_dodo(state, 1)
 
 
-
-
-
+pprint(initial_state_dodo(),4)
 
 
 
