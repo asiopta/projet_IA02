@@ -32,52 +32,54 @@ def initial_state_dodo() -> State:
     result.append(((-2, 1), 0))
     result.append(((1, -2), 0))
 
+    result.append(((0,0),0))
     # resultat
     return result
 
 
+#print(initial_state_dodo()) 
+
 def voisins_Dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[Cell]:
-    result: list[Cell] = []
-    cell_mutable = [cellule_dodo[0][0], cellule_dodo[0][1]]
-    if cellule_dodo == 1:
-        new_cell = (cell_mutable[0], cell_mutable[1] + 1)
-        if new_cell in grid:
-            result.append(new_cell)
-
-        new_cell = (cell_mutable[0] + 1, cell_mutable[1])
-        if new_cell in grid:
-            result.append(new_cell)
-
-        new_cell = (cell_mutable[0] + 1, cell_mutable[1] + 1)
-        if new_cell in grid:
-            print(new_cell)
-            result.append(new_cell)
-        return result
-
+    result: List[Cell] = []
+    cell = cellule_dodo[0]
+    
+    if cellule_dodo[1] == 1:
+    #  print("HELLO")
+        new_cells = [
+            (cell[0], cell[1] + 1),  # haut a gauche
+            (cell[0] + 1, cell[1]),  # Haut a droite
+            (cell[0] + 1, cell[1] + 1)  # directement au dessus
+        ]
     else:
-        new_cell = (cell_mutable[0], cell_mutable[1] - 1)
-        if new_cell in grid:
-            result.append(new_cell)
+        new_cells = [
+            (cell[0], cell[1] - 1),  # en bas a gauche
+            (cell[0] - 1, cell[1]),  # en bas a droite
+            (cell[0] - 1, cell[1] - 1)  # directement au dessous
+        ]
+    
+  #  print(new_cells)
+    for new_cell in new_cells:
+        
+       # print(new_cell)
+     #  print(grid)
+        for cellplayer in grid :  
+           #print("okay")
+            if new_cell == cellplayer  :
+                result.append(new_cell)
+  # print(result)
+    return result
+#print(initial_state_dodo())
+#rint(state_to_environnement(initial_state_dodo()))
 
-        new_cell = (cell_mutable[0] - 1, cell_mutable[1])
-        if new_cell in grid:
-            result.append(new_cell)
-
-        new_cell = (cell_mutable[0] - 1, cell_mutable[1] - 1)
-        if new_cell in grid:
-            result.append(new_cell)
-
-        return result
-
+#rint(voisins_Dodo(((1,0),2),state_to_environnement(initial_state_dodo())))
 
 def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[Cell]:
-    voisins: list[Cell] = voisins_Dodo(cellule_dodo, grid)
+    voisins = voisins_Dodo(cellule_dodo, grid)
     result: list[Cell] = []
     for cell in voisins:
         if grid[cell] == 0:
             result.append(cell)
     return result
-
 
 def legals_dodo(state: State, tour: Player) -> list[ActionDodo]:
     result: list[ActionDodo] = []
@@ -251,3 +253,16 @@ def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
         else:
             return score_dodo(state, 2)
     return score_dodo(state, 1)
+
+
+
+
+
+
+
+
+
+
+
+
+

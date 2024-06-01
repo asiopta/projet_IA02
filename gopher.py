@@ -225,3 +225,17 @@ def gopher(strategy_X: Strategy, strategy_O: Strategy, size: int) -> Score:
         else:
             return score_gopher(state, 1)
     return score_gopher(state, 2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
