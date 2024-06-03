@@ -133,7 +133,8 @@ def evaluation_state_dodo(state: State, tour: Player) -> float:  # à faire
         return -1
     else:
         diff_int = nb_legals_adversaire - nb_legals_player
-        return diff_int / nb_legals_adversaire + nb_legals_player
+       # print(diff_int / (nb_legals_adversaire + nb_legals_player))
+        return diff_int / (nb_legals_adversaire + nb_legals_player)
 
 
 # stratégie alpha-beta
@@ -164,6 +165,8 @@ def alphabeta_dodo(state: State, tour: Player, alpha: float = -1000, beta: float
 def alphabeta_dodo_depth(state: State, tour: Player, depth: int, alpha: float, beta: float) -> float:
     """ alphabeta pour le jeu dodo pour un depth limité"""
     if final_dodo(state, tour):
+        print("HELLO WORLD")
+        print(score_dodo(state, tour))
         return score_dodo(state, tour)
     elif depth == 0:
         return evaluation_state_dodo(state, tour)
@@ -275,3 +278,16 @@ def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
         else:
             return score_dodo(state, 2)
     return score_dodo(state, 1)
+
+
+
+#print(alphabeta_action_dodo(initial_state_dodo(),1))
+
+
+#print(alphabeta_dodo_depth(initial_state_dodo(),1,3,-100,100))
+print(alphabeta_action_dodo_depth(initial_state_dodo(),1))
+
+
+
+
+
