@@ -97,7 +97,7 @@ def evaluation_state_gopher(state: State, tour: Player) -> float:  # à faire
         return 1
     else:
         diff_int = nb_legals_player - nb_legals_adversaire
-        return -diff_int / 100
+        return -diff_int / nb_legals_player + nb_legals_adversaire
 
 
 def alphabeta_gopher(state: State, tour: Player, alpha: float = -1000, beta: float = 1000) -> float:
@@ -187,7 +187,7 @@ def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-100, beta=1
         best_action: ActionGopher = legals_gopher(state, tour)[0]
         best_score: float = -10000
         for action in legals_gopher(state, tour):
-            bla = alphabeta_gopher_depth(play_gopher(state, action, tour), minimizing_player, 10, alpha, beta)
+            bla = alphabeta_gopher_depth(play_gopher(state, action, tour), minimizing_player, 3, alpha, beta)
             if bla > best_score:
                 best_score = bla
                 best_action = action
@@ -195,7 +195,7 @@ def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-100, beta=1
         best_action: ActionGopher = legals_gopher(state, tour)[0]
         best_score: float = 10000
         for action in legals_gopher(state, tour):
-            bla = alphabeta_gopher_depth(play_gopher(state, action, tour), maximizing_player, 10, alpha, beta)
+            bla = alphabeta_gopher_depth(play_gopher(state, action, tour), maximizing_player, 3, alpha, beta)
             if bla < best_score:
                 best_score = bla
                 best_action = action
@@ -213,29 +213,22 @@ def stategy_random_gopher(state: State, tour: Player) -> ActionGopher:
 
 def gopher(strategy_X: Strategy, strategy_O: Strategy, size: int) -> Score:
     state: State = empty_state(size)
+    print("----------------joueur1-----------------------")
+    print()
     state = play_gopher(state, (0, 0), 1)
+    pprint(state, size)
     while not final_gopher(state, 2):
         action_2: Action = strategy_X(state, 2)
         state = play_gopher(state, action_2, 2)
+        print("----------------joueur2-----------------------")
+        print()
         pprint(state, size)
         if not final_gopher(state, 1):
             action_2: Action = strategy_O(state, 1)
             state = play_gopher(state, action_2, 1)
+            print("----------------joueur1-----------------------")
+            print()
             pprint(state, size)
         else:
             return score_gopher(state, 1)
     return score_gopher(state, 2)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
