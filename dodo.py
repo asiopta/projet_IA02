@@ -103,8 +103,8 @@ def final_dodo(state: State, tour: Player) -> bool:
     return legals_dodo(state, tour) == []
 
 
-###A VERIFIER LE RESTE ENCORE
-def score_dodo(state: State, tour: Player) -> int:
+
+def score_dodo(state: State, tour: Player) -> Score:
     if final_dodo(state, tour):
         if tour == 1:
             return 1
@@ -123,7 +123,7 @@ def play_dodo(state: State, action: ActionDodo, tour: Player) -> State:
     return environnement_to_state(grid)
 
 
-def evaluation_state_dodo(state: State, tour: Player) -> float:  # à faire
+def evaluation_state_dodo(state: State, tour: Player) -> Score:
     """fonction d'évaluation de l'état d'un jeu DODO"""
     nb_legals_player: int = len(legals_dodo(state, tour)) - 1
     nb_legals_adversaire: int = len(legals_dodo(state, adversaire(tour)))
@@ -133,12 +133,11 @@ def evaluation_state_dodo(state: State, tour: Player) -> float:  # à faire
         return -1
     else:
         diff_int = nb_legals_adversaire - nb_legals_player
-       # print(diff_int / (nb_legals_adversaire + nb_legals_player))
         return diff_int / (nb_legals_adversaire + nb_legals_player)
 
 
 # stratégie alpha-beta
-def alphabeta_dodo(state: State, tour: Player, alpha: float = -1000, beta: float = 1000) -> float:
+def alphabeta_dodo(state: State, tour: Player, alpha: float = -1000, beta: float = 1000) -> Score:
     """ alphabeta pour le jeu dodo pour un depth illimité"""
     if final_dodo(state, tour):
         return score_dodo(state, tour)
@@ -162,11 +161,9 @@ def alphabeta_dodo(state: State, tour: Player, alpha: float = -1000, beta: float
         return value
 
 
-def alphabeta_dodo_depth(state: State, tour: Player, depth: int, alpha: float, beta: float) -> float:
+def alphabeta_dodo_depth(state: State, tour: Player, depth: int, alpha: float, beta: float) -> Score:
     """ alphabeta pour le jeu dodo pour un depth limité"""
     if final_dodo(state, tour):
-        print("HELLO WORLD")
-        print(score_dodo(state, tour))
         return score_dodo(state, tour)
     elif depth == 0:
         return evaluation_state_dodo(state, tour)
@@ -196,13 +193,13 @@ minimizing_player: Player = 2
 
 
 @memoize
-def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, ActionDodo]:
+def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> tuple[Score, ActionDodo]:
     """alphabeta avec action avec depth illimité"""
     if final_dodo(state, tour):
         return score_dodo(state, tour), ((4, 4), (4, 4))
     if tour == maximizing_player:
         best_action: Action = legals_dodo(state, tour)[0]
-        best_score: float = -10000
+        best_score: Score = -10000
         for action in legals_dodo(state, tour):
             bla = alphabeta_dodo(play_dodo(state, action, tour), minimizing_player, alpha, beta)
             if bla > best_score:
@@ -210,7 +207,7 @@ def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> t
                 best_action = action
     else:
         best_action: Action = legals_dodo(state, tour)[0]
-        best_score: float = 10000
+        best_score: Score = 10000
         for action in legals_dodo(state, tour):
             bla = alphabeta_dodo(play_dodo(state, action, tour), maximizing_player, alpha, beta)
             if bla < best_score:
@@ -221,14 +218,14 @@ def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> t
 
 
 @memoize
-def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[float, ActionDodo]:
+def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[Score, ActionDodo]:
     """alphabeta avec action avec depth limité"""
     if final_dodo(state, tour):
         return score_dodo(state, tour), ((4, 4), (4, 4))
     if tour == maximizing_player:
         actions_legales: list[ActionDodo] = legals_dodo(state, tour)
         best_action: Action = actions_legales[0]
-        best_score: float = -10000
+        best_score: Score = -10000
         for action in actions_legales:
             bla = alphabeta_dodo_depth(play_dodo(state, action, tour), minimizing_player, 3, alpha, beta)
             if bla > best_score:
@@ -237,7 +234,7 @@ def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100
     else:
         actions_legales: list[ActionDodo] = legals_dodo(state, tour)
         best_action: Action = actions_legales[0]
-        best_score: float = 10000
+        best_score: Score = 10000
         for action in actions_legales:
             bla = alphabeta_dodo_depth(play_dodo(state, action, tour), maximizing_player, 3, alpha, beta)
             if bla < best_score:
@@ -278,16 +275,3 @@ def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
         else:
             return score_dodo(state, 2)
     return score_dodo(state, 1)
-
-
-
-#print(alphabeta_action_dodo(initial_state_dodo(),1))
-
-
-#print(alphabeta_dodo_depth(initial_state_dodo(),1,3,-100,100))
-print(alphabeta_action_dodo_depth(initial_state_dodo(),1))
-
-
-
-
-
