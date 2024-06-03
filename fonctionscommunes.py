@@ -1,5 +1,6 @@
 from typing import Union, Callable
 import random
+
 # Types de base utilisés par l'arbitre
 
 
@@ -40,7 +41,6 @@ def final_result(state: State, score: Score, player: Player) -> tuple[Player, St
     '''Cette fonction est appelée à la fin du jeu
     et renvoie le joueur gagnant, l'état final et le score'''
     print()
-    
 
 
 '''
@@ -188,7 +188,7 @@ def pprint(state: State, size: int):
         if i > 0:
             print(i * "_ ", end="")
         while sorted_state[j][0][1] == i:
-            #print(sorted_state[j][0], sorted_state[j][1], end=" ")
+            # print(sorted_state[j][0], sorted_state[j][1], end=" ")
             print(sorted_state[j][1], end=" ")
 
             j += 1
@@ -197,7 +197,6 @@ def pprint(state: State, size: int):
         if i < 0:
             print(abs(i) * "_ ", end="")
         print("\n")
-
 
 
 '''
@@ -270,10 +269,10 @@ def inverse_vertical_axis(state: State):
     grid = state_to_environnement(state)
     for cellule, valeur in grid.items():
         q, r = cellule
-        cellule = grid[(q, r)]
-        grid[(q, r)] = grid[(-q, r)]
-        grid[(-q, r)] = cellule
-
+        if abs(q) != abs(r):
+            cellule = grid[(q, r)]
+            grid[(q, r)] = grid[(r, q)]
+            grid[(r, q)] = cellule
     return environnement_to_state(grid)
 
 
@@ -289,14 +288,14 @@ def inverse_colors(state: State):
 
 def symetrie_origine(cellule: Cell):
     q, r = cellule
-    return tuple(-q, -r)
+    return -q, -r
 
 
 def inverser_positions_par_symetrie_origine(state: State) -> State:
     nouvelles_positions = {}
     grid = state_to_environnement(state)
     for (coord, couleur) in grid.items():
-        coord_sym = symetrie_origine(coord)
+        coord_sym: Cell = symetrie_origine(coord)
         nouvelles_positions[coord_sym] = couleur
     return environnement_to_state(nouvelles_positions)
 
