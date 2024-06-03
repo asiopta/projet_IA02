@@ -1,5 +1,8 @@
-from typing import Union, Callable
+from typing import Union, Callable, Tuple, Dict
 import random
+import csv
+import atexit
+import json
 
 # Types de base utilisés par l'arbitre
 
@@ -10,7 +13,7 @@ ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
 Action = Union[ActionGopher, ActionDodo]
 Player = int  # 1 ou 2
 State = list[tuple[Cell, Player]]  # État du jeu pour la boucle de jeu
-Score = int
+Score = float
 Time = int
 Taille = int
 Strategy = Callable[[State, Player], Action]
@@ -307,10 +310,37 @@ def generate_symmetric_states(state: State) -> [State]:
             inverser_positions_par_symetrie_origine(state)]
 
 
-def memoize(f: Callable[[State, Player], tuple[Score, Action]]) -> Callable[[State, Player], tuple[Score, Action]]:
-    cache: dict[int, tuple[Score, Action]] = {}  # closure
+# Function to save cache to a file
+def save_cache_to_file(cache: Dict[int, Tuple[Score, Action]], filename: str):
+    existing_cache = load_cache_from_file(filename)
+    existing_cache.update(cache)
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        for key, value in existing_cache.items():
+            writer.writerow([key, value[0], json.dumps(value[1])])
 
-    def g(state: State, player: Player) -> tuple[Score, Action]:
+
+# Function to load cache from a file
+def load_cache_from_file(filename: str) -> Dict[int, Tuple[Score, Action]]:
+    cache = {}
+    try:
+        with open(filename, 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                key = int(row[0])
+                score = float(row[1])
+                action = json.loads(row[2])  # Use JSON to parse the action
+                cache[key] = (score, action)
+    except FileNotFoundError:
+        pass
+    return cache
+
+
+# Memoize function
+def memoize(f: Callable[[State, Player], Tuple[Score, Action]], cache_file: str = 'cache.csv') -> Callable[[State, Player], Tuple[Score, Action]]:
+    cache: Dict[int, Tuple[Score, Action]] = load_cache_from_file(cache_file)  # Load cache from file
+
+    def g(state: State, player: Player) -> Tuple[Score, Action]:
         symmetric_states = generate_symmetric_states(state)
         hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
 
@@ -323,5 +353,8 @@ def memoize(f: Callable[[State, Player], tuple[Score, Action]]) -> Callable[[Sta
             cache[hashed_value] = val
 
         return val
+
+    # Register the cache saving function to be called on program exit
+    atexit.register(save_cache_to_file, cache, cache_file)
 
     return g
