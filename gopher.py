@@ -153,7 +153,7 @@ def alphabeta_gopher_depth(state: State, tour: Player, depth: int, alpha: float,
             return value
 
 
-@memoize
+@memoize_gopher
 def alphabeta_action_gopher(state: State, tour: Player, alpha=-100, beta=100) -> tuple[Score, ActionGopher]:
     """alphabeta avec action avec depth illimité"""
     if final_gopher(state, tour):
@@ -178,7 +178,7 @@ def alphabeta_action_gopher(state: State, tour: Player, alpha=-100, beta=100) ->
     return best_score, best_action
 
 
-@memoize
+@memoize_gopher
 def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[Score, ActionGopher]:
     """alphabeta avec action avec depth limité"""
     if final_gopher(state, tour):
