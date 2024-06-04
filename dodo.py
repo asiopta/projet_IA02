@@ -192,7 +192,7 @@ maximizing_player: Player = 1
 minimizing_player: Player = 2
 
 
-@memoize
+@memoize_dodo
 def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> tuple[Score, ActionDodo]:
     """alphabeta avec action avec depth illimité"""
     if final_dodo(state, tour):
@@ -217,7 +217,7 @@ def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> t
     return best_score, best_action
 
 
-@memoize
+@memoize_dodo
 def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[Score, ActionDodo]:
     """alphabeta avec action avec depth limité"""
     if final_dodo(state, tour):
