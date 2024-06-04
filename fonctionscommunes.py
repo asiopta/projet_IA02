@@ -225,13 +225,13 @@ TODO:
 
 # seed, une valeur globale initialisé à une valeur random,
 # qui permettra la generation de valaurs pseudo-aléatoires
-seed: int = 12497846486
+seed: int = random.randint(0, 2 ** 32)
 
 
 def generate_random_value() -> int:
     """une fonction qui génère un nombre pseudo-aléatoire"""
-    a: int = 7690753721
-    b: int = 9847572537
+    a: int = random.randint(0, 2 ** 32)
+    b: int = random.randint(0, 2 ** 32)
     global seed
     seed = (a * seed + b) % (2 ** 32)
     return seed
@@ -330,17 +330,46 @@ def load_cache_from_file(filename: str) -> Dict[int, Tuple[Score, Action]]:
                 key = int(row[0])
                 score = float(row[1])
                 action = json.loads(row[2])  # Use JSON to parse the action
+                if isinstance(action, list):
+                    action = tuple(tuple(x) for x in action)  # Convert to tuple of tuples if needed
                 cache[key] = (score, action)
     except FileNotFoundError:
         pass
+    print("cache loaded")
     return cache
 
 
-# Memoize function
-def memoize(f: Callable[[State, Player], Tuple[Score, Action]], cache_file: str = 'cache.csv') -> Callable[[State, Player], Tuple[Score, Action]]:
-    cache: Dict[int, Tuple[Score, Action]] = load_cache_from_file(cache_file)  # Load cache from file
+# Memoize function for Dodo
+def memoize_dodo(f: Callable[[State, Player], Tuple[Score, ActionDodo]], cache_file: str = 'cachedodo.csv') -> Callable[
+    [State, Player], Tuple[Score, ActionDodo]]:
+    cache: Dict[int, Tuple[Score, ActionDodo]] = load_cache_from_file(cache_file)  # Load cache from file
 
-    def g(state: State, player: Player) -> Tuple[Score, Action]:
+    def g(state: State, player: Player) -> Tuple[Score, ActionDodo]:
+        symmetric_states = generate_symmetric_states(state)
+        hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
+
+        for hashed_value in hashed_values:
+            if hashed_value in cache:
+                return cache[hashed_value]
+
+        val = f(state, player)
+        for hashed_value in hashed_values:
+            cache[hashed_value] = val
+
+        return val
+
+    # Register the cache saving function to be called on program exit
+    atexit.register(save_cache_to_file, cache, cache_file)
+
+    return g
+
+
+# Memoize function for Gopher
+def memoize_gopher(f: Callable[[State, Player], Tuple[Score, ActionGopher]], cache_file: str = 'cachegopher.csv') -> \
+Callable[[State, Player], Tuple[Score, ActionGopher]]:
+    cache: Dict[int, Tuple[Score, ActionGopher]] = load_cache_from_file(cache_file)  # Load cache from file
+
+    def g(state: State, player: Player) -> Tuple[Score, ActionGopher]:
         symmetric_states = generate_symmetric_states(state)
         hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
 
