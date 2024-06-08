@@ -1,4 +1,5 @@
 from fonctionscommunes import *
+import math
 
 
 def initial_state_dodo() -> State:
@@ -254,6 +255,77 @@ def strategy_random_dodo(state: State, tour: Player) -> ActionDodo:
     return random.choice(legal_actions)
 
 
+
+#print(MCTS(initial_state_dodo(),1,14))
+def MCTS(state: State, player: Player, iterations: int) -> ActionDodo:
+    """Monte Carlo Tree Search for Dodo game."""
+    
+    class Node:
+        def __init__(self, state: State, parent=None):
+            self.state = state
+            self.parent = parent
+            self.children = []
+            self.visits = 0
+            self.wins = 0
+            self.untried_actions = legals_dodo(state, player)
+
+        def add_child(self, child_state: State, action: ActionDodo):
+            child_node = Node(child_state, parent=self)
+            self.children.append((child_node, action))
+            return child_node
+
+        def update(self, result):
+            self.visits += 1
+            self.wins += result
+
+    def uct_select(node: Node):
+        """Select a child node based on UCT (Upper Confidence Bound for Trees)."""
+        log_parent_visits = math.log(node.visits)
+        return max(node.children, key=lambda n: (n[0].wins / n[0].visits) + math.sqrt(2 * log_parent_visits / n[0].visits))
+
+    def rollout(state: State, player: Player):
+        """Simulate a random game from the current state."""
+        while not final_dodo(state, player):
+            legal_actions = legals_dodo(state, player)
+            if not legal_actions:
+                return -1  # Illegal action, return a losing score
+            action = random.choice(legal_actions)
+            state = play_dodo(state, action, player)
+            player = adversaire(player)
+        return score_dodo(state, player)
+    
+    root = Node(state)
+    
+    for _ in range(iterations):
+        node = root
+        state = root.state
+        player = player
+        
+        # Select
+        while node.untried_actions == [] and node.children != []:
+            node, action = uct_select(node)
+            state = play_dodo(state, action, player)
+            player = adversaire(player)
+        
+        # Expand
+        if node.untried_actions != []:
+            action = random.choice(node.untried_actions)
+            state = play_dodo(state, action, player)
+            node.untried_actions.remove(action)
+            node = node.add_child(state, action)
+            player = adversaire(player)
+        
+        # Simulate
+        result = rollout(state, player)
+        
+        # Backpropagate
+        while node is not None:
+            node.update(result)
+            node = node.parent
+            result = -result
+
+    return max(root.children, key=lambda c: c[0].wins / c[0].visits)[1]
+
 # boucle de jeu
 def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
     state: State = initial_state_dodo()
@@ -275,3 +347,8 @@ def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
         else:
             return score_dodo(state, 2)
     return score_dodo(state, 1)
+
+
+
+
+

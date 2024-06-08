@@ -6,16 +6,18 @@ with Blue, players take turns placing a stone which forms exactly one enemy
 connection and no friendly connections.
 
 The last player to place a stone wins
+
 """
 
 
 def forms_friendly_connection(tour: Player, cellule_gopher: Cell, grid: Environment) -> bool:
-    """checks if playing in a given cell, forms a friendly connection"""
+    """ checks if playing in a given cell, forms a friendly connection """
     for cell in voisins(cellule_gopher, grid):
         if grid[cell] == tour:
             return True
     return False
 
+#pprint(empty_state(7),7)
 
 def forms_enemy_connection(tour: Player, cellule_gopher: Cell, grid: Environment) -> int:
     """checks if playing in a given cell, how many enemy connections that moves creates"""
@@ -26,9 +28,12 @@ def forms_enemy_connection(tour: Player, cellule_gopher: Cell, grid: Environment
             var += 1
     return var
 
+print(forms_enemy_connection(1,(3,4),state_to_environnement(empty_state(7))))
+
+'''
 
 def to_discard(tour: Player, cellule_gopher: Cell, grid: Environment) -> bool:
-    """checks if it's a friendly cell or an enemy cell that already has an enemy connection
+    """Checks if it's a friendly cell or an enemy cell that already has an enemy connection
     if that's true, we discard it, no need to check if we can play around it or not"""
     if grid[cellule_gopher] == tour:  # it's a friendly cell
         return True
@@ -37,8 +42,8 @@ def to_discard(tour: Player, cellule_gopher: Cell, grid: Environment) -> bool:
             if grid[cell] == tour:
                 return True
     return False
-
-
+'''
+'''
 def voisins_libres_gopher(cellule_gopher_jouable: Cell, tour: Player, grid: Environment) -> list[Cell]:
     """
     takes a non discarded cell as input, regarde ses voisins
@@ -50,24 +55,39 @@ def voisins_libres_gopher(cellule_gopher_jouable: Cell, tour: Player, grid: Envi
                 and (forms_enemy_connection(tour, cellule_gopher_jouable, grid) == 1)):
             result.append(cell)
     return result
+'''
 
+def vide(state : State): 
+    grid = state_to_environnement(state) 
+    for i in grid.values() : 
+        if i != 0 : return False
+    return True   
+#print(vide(empty_state(7)))
 
 def legals_gopher(state: State, tour: Player) -> list[ActionGopher]:
     res: list[ActionGopher] = []
+    if vide(state) : 
+        return list(state_to_environnement(state).keys())
     grid: Environment = state_to_environnement(state)
-    for cell in grid:
-        if not (to_discard(tour, cell, grid)):
-            res += voisins_libres_gopher(cell, tour, grid)
+    
+    '''
+    for cell,player in grid.items():
+            if player == 0 : 
+                res += voisins_libres_gopher(cell, tour, grid)
+    return res'''
+    for cell,player in grid.items(): 
+        if player == 0 and (not forms_friendly_connection(tour, cell, grid)) and (forms_enemy_connection(tour, cell, grid) == 1) :
+                    res.append(cell)
+    return res 
 
-    return res
-
+print(legals_gopher(empty_state(7),2))
 
 def final_gopher(state: State, tour: Player) -> bool:
+    #Verifier si le joueur ne peut plus bouger
     res: list[ActionGopher] = legals_gopher(state, tour)
     if len(res) == 0:
         return True
     return False
-
 
 def score_gopher(state: State, tour: Player) -> Score:
     if final_gopher(state, tour):
@@ -75,7 +95,6 @@ def score_gopher(state: State, tour: Player) -> Score:
             return -1
         else:  # joueur1 a gagné
             return 1
-
 
 def play_gopher(state: State, action: ActionGopher, tour: Player) -> State:
     if action not in legals_gopher(state, tour):
@@ -215,22 +234,33 @@ def stategy_random_gopher(state: State, tour: Player) -> ActionGopher:
 
 def gopher(strategy_X: Strategy, strategy_O: Strategy, size: int) -> Score:
     state: State = empty_state(size)
-    print("----------------joueur1-----------------------")
-    print()
-    state = play_gopher(state, (0, 0), 1)
-    pprint(state, size)
-    while not final_gopher(state, 2):
-        action_2: Action = strategy_X(state, 2)
-        state = play_gopher(state, action_2, 2)
-        print("----------------joueur2-----------------------")
+
+    while not final_gopher(state, 1):
+        # Joueur 1 (strategy_O) joue en premier
+        action_1: Action = strategy_O(state, 1)
+        state = play_gopher(state, action_1, 1)
+        print("----------------joueur1-----------------------")
         print()
         pprint(state, size)
-        if not final_gopher(state, 1):
-            action_2: Action = strategy_O(state, 1)
-            state = play_gopher(state, action_2, 1)
-            print("----------------joueur1-----------------------")
+        
+        print(final_gopher(state, 2))
+        if not final_gopher(state, 2):
+            # Joueur 2 (strategy_X) joue ensuite
+            action_2: Action = strategy_X(state, 2)
+            state = play_gopher(state, action_2, 2)
+            print("----------------joueur2-----------------------")
             print()
             pprint(state, size)
         else:
             return score_gopher(state, 1)
+
     return score_gopher(state, 2)
+
+
+#final_gopher(empty_state(7),1)
+gopher(strategy_alphabeta_gopher,stategy_random_gopher,7)
+
+
+
+
+

@@ -191,8 +191,8 @@ def pprint(state: State, size: int):
         if i > 0:
             print(i * "_ ", end="")
         while sorted_state[j][0][1] == i:
-            # print(sorted_state[j][0], sorted_state[j][1], end=" ")
-            print(sorted_state[j][1], end=" ")
+            print(sorted_state[j][0], sorted_state[j][1], end=" ")
+            #print(sorted_state[j][1], end=" ")
 
             j += 1
             if j > len(sorted_state) - 1:
@@ -257,7 +257,7 @@ def hash_zobrist(state: State) -> int:
     h = 0
     for item in state:
         if item[1] != 0:
-            h ^= UNIQUE_VALUES[item]
+            h = UNIQUE_VALUES[item]
     return h
 
 
