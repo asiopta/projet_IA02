@@ -1,5 +1,4 @@
 from fonctionscommunes import *
-import math
 
 
 def initial_state_dodo() -> State:
@@ -41,7 +40,7 @@ def initial_state_dodo() -> State:
 
 # print(initial_state_dodo())
 
-def voisins_Dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[Cell]:
+def voisins_Dodo(cellule_dodo: tuple[Cell, Player], grid: Grid) -> list[Cell]:
     result: list[Cell] = []
     cell = cellule_dodo[0]
 
@@ -77,7 +76,7 @@ def voisins_Dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[C
 
 # rint(voisins_Dodo(((1,0),2),state_to_environnement(initial_state_dodo())))
 
-def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) -> list[Cell]:
+def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Grid) -> list[Cell]:
     voisins = voisins_Dodo(cellule_dodo, grid)
     result: list[Cell] = []
     for cell in voisins:
@@ -88,7 +87,7 @@ def voisins_libres_dodo(cellule_dodo: tuple[Cell, Player], grid: Environment) ->
 
 def legals_dodo(state: State, tour: Player) -> list[ActionDodo]:
     result: list[ActionDodo] = []
-    grid: Environment = state_to_environnement(state)
+    grid: Grid = state_to_environnement(state)
 
     # Lescellules appartenant au joueur
     player_cells = [cell for cell in state if cell[1] == tour]
@@ -123,18 +122,55 @@ def play_dodo(state: State, action: ActionDodo, tour: Player) -> State:
         grid[action[1]] = tour
     return environnement_to_state(grid)
 
-
+'''
 def evaluation_state_dodo(state: State, tour: Player) -> Score:
     """fonction d'évaluation de l'état d'un jeu DODO"""
     nb_legals_player: int = len(legals_dodo(state, tour)) - 1
     nb_legals_adversaire: int = len(legals_dodo(state, adversaire(tour)))
-    if nb_legals_player == 0:
+    if nb_legals_player <= 0:
         return 1
-    elif nb_legals_adversaire == 0:
+    elif nb_legals_adversaire <= 0:
         return -1
     else:
         diff_int = nb_legals_adversaire - nb_legals_player
+
         return diff_int / (nb_legals_adversaire + nb_legals_player)
+
+'''
+def centrality_score(cell: Cell) -> float:
+    center = (0, 0)
+    distance = abs(cell[0] - center[0]) + abs(cell[1] - center[1])
+    return max(0, 6 - distance)  # The farther from the center, the lower the score
+
+
+def evaluation_state_dodo(state: State, tour: Player) -> Score:
+    """Improved evaluation function for Dodo game state."""
+
+    nb_legals_player = len(legals_dodo(state, tour))
+    nb_legals_adversaire = len(legals_dodo(state, adversaire(tour)))
+
+    if nb_legals_player == 0:
+        return float('-inf')  # Loss for the current player
+    if nb_legals_adversaire == 0:
+        return float('inf')  # Win for the current player
+
+    # Mobility factor
+    mobility_score = nb_legals_player - nb_legals_adversaire
+
+    # Centrality factor
+    centrality_player = sum(centrality_score(cell) for cell, p in state if p == tour)
+    centrality_adversaire = sum(centrality_score(cell) for cell, p in state if p == adversaire(tour))
+    centrality_diff = centrality_player - centrality_adversaire
+
+    # Blocking potential
+    blocking_score = 0
+    for cell, p in state:
+        if p == tour:
+            blocking_score += sum(1 for move in legals_dodo(state, adversaire(tour)) if move[1] == cell)
+
+    # Combine factors with appropriate weights
+    return (0.6 * mobility_score) + (0.2 * centrality_diff) + (0.2 * blocking_score)
+
 
 
 # stratégie alpha-beta
@@ -191,6 +227,30 @@ def alphabeta_dodo_depth(state: State, tour: Player, depth: int, alpha: float, b
 
 maximizing_player: Player = 1
 minimizing_player: Player = 2
+
+# Memoize function for Dodo
+def memoize_dodo(f: Callable[[State, Player], Tuple[Score, ActionDodo]], cache_file: str = 'cachedodo2.csv') -> Callable[
+    [State, Player], Tuple[Score, ActionDodo]]:
+    cache: Dict[int, Tuple[Score, ActionDodo]] = load_cache_from_file(cache_file)  # Load cache from file
+
+    def g(state: State, player: Player) -> Tuple[Score, ActionDodo]:
+        symmetric_states = generate_symmetric_states(state)
+        hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
+
+        for hashed_value in hashed_values:
+            if hashed_value in cache:
+                return cache[hashed_value]
+
+        val = f(state, player)
+        for hashed_value in hashed_values:
+            cache[hashed_value] = val
+
+        return val
+
+    # Register the cache saving function to be called on program exit
+    atexit.register(save_cache_to_file, cache, cache_file)
+
+    return g
 
 
 @memoize_dodo
@@ -255,77 +315,6 @@ def strategy_random_dodo(state: State, tour: Player) -> ActionDodo:
     return random.choice(legal_actions)
 
 
-
-#print(MCTS(initial_state_dodo(),1,14))
-def MCTS(state: State, player: Player, iterations: int) -> ActionDodo:
-    """Monte Carlo Tree Search for Dodo game."""
-    
-    class Node:
-        def __init__(self, state: State, parent=None):
-            self.state = state
-            self.parent = parent
-            self.children = []
-            self.visits = 0
-            self.wins = 0
-            self.untried_actions = legals_dodo(state, player)
-
-        def add_child(self, child_state: State, action: ActionDodo):
-            child_node = Node(child_state, parent=self)
-            self.children.append((child_node, action))
-            return child_node
-
-        def update(self, result):
-            self.visits += 1
-            self.wins += result
-
-    def uct_select(node: Node):
-        """Select a child node based on UCT (Upper Confidence Bound for Trees)."""
-        log_parent_visits = math.log(node.visits)
-        return max(node.children, key=lambda n: (n[0].wins / n[0].visits) + math.sqrt(2 * log_parent_visits / n[0].visits))
-
-    def rollout(state: State, player: Player):
-        """Simulate a random game from the current state."""
-        while not final_dodo(state, player):
-            legal_actions = legals_dodo(state, player)
-            if not legal_actions:
-                return -1  # Illegal action, return a losing score
-            action = random.choice(legal_actions)
-            state = play_dodo(state, action, player)
-            player = adversaire(player)
-        return score_dodo(state, player)
-    
-    root = Node(state)
-    
-    for _ in range(iterations):
-        node = root
-        state = root.state
-        player = player
-        
-        # Select
-        while node.untried_actions == [] and node.children != []:
-            node, action = uct_select(node)
-            state = play_dodo(state, action, player)
-            player = adversaire(player)
-        
-        # Expand
-        if node.untried_actions != []:
-            action = random.choice(node.untried_actions)
-            state = play_dodo(state, action, player)
-            node.untried_actions.remove(action)
-            node = node.add_child(state, action)
-            player = adversaire(player)
-        
-        # Simulate
-        result = rollout(state, player)
-        
-        # Backpropagate
-        while node is not None:
-            node.update(result)
-            node = node.parent
-            result = -result
-
-    return max(root.children, key=lambda c: c[0].wins / c[0].visits)[1]
-
 # boucle de jeu
 def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
     state: State = initial_state_dodo()
@@ -347,8 +336,3 @@ def dodo(strategy_X: Strategy, strategy_O: Strategy) -> Score:
         else:
             return score_dodo(state, 2)
     return score_dodo(state, 1)
-
-
-
-
-
