@@ -4,6 +4,7 @@ import csv
 import atexit
 import json
 
+
 # Types de base utilisés par l'arbitre
 
 
@@ -17,33 +18,11 @@ Score = float
 Time = int
 Taille = int
 Strategy = Callable[[State, Player], Action]
-Environment = dict[tuple[int, int], int]
+Grid = dict[tuple[int, int], int]
+Environment = Union[Dict[int, Tuple[Score, ActionDodo]], Dict[int, Tuple[Score, ActionGopher]]]
 maximizing_player: Player
 minimizing_player: Player
 
-
-# fonctions communs à tt le monde
-def initialize(game: str, state: State, player: Player, hex_size: int, total_time: Time) -> Environment:
-    '''Cette fonction est lancée au début du jeu.
-    Elle dit à quel jeu on joue, le joueur que l'on est et renvoie l'environnement '''
-    global maximizing_player, minimizing_player
-    maximizing_player = player
-    if player == 1:
-        minimizing_player = 2
-    else:
-        minimizing_player = 1
-
-
-def strategy(env: Environment, state: State, player: Player, time_left: Time) -> tuple[Environment, Action]:
-    '''Cette fonction est la strategie qu'on utilise pour jouer.
-    Cette fonction est lancée à chaque fois que c'est à notre joueur de jouer.'''
-    print()
-
-
-def final_result(state: State, score: Score, player: Player) -> tuple[Player, State, Score]:
-    '''Cette fonction est appelée à la fin du jeu
-    et renvoie le joueur gagnant, l'état final et le score'''
-    print()
 
 
 '''
@@ -67,7 +46,7 @@ ISMAT
 
 
 # Nos fonctions à nous
-def state_to_environnement(state: State) -> Environment:
+def state_to_environnement(state: State) -> Grid:
     """gopher et dodo"""
     result: dict = {}
     for item in state:
@@ -75,7 +54,7 @@ def state_to_environnement(state: State) -> Environment:
     return result
 
 
-def environnement_to_state(grid: Environment) -> State:
+def environnement_to_state(grid: Grid) -> State:
     """gopher et dodo"""
     result: State = []
     for key, value in grid.items():
@@ -128,7 +107,7 @@ def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
 '''
 
 
-def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
+def voisins(cellule: Cell, grid: Grid) -> list[Cell]:
     """Applicable for dodo and gopher."""
     result: list[Cell] = []
     x, y = cellule
@@ -151,6 +130,7 @@ def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
     return result
 
 
+'''
 def empty_state(n: Taille) -> State:
     """appliquable pour gopher"""
     result: State = []
@@ -178,6 +158,23 @@ def empty_state(n: Taille) -> State:
         result.append(((i, -i), 0))
 
     return result
+'''
+
+def empty_state(size: int) -> State:
+    result: State = []
+    size = size - 1  # Adjust size to match the grid indexing
+
+    # Initialize the grid with valid cells only
+    for i in range(-size, size + 1):
+        for j in range(-size, size + 1):
+            if -size <= i + j <= size:
+                cell: Cell = (i, j)
+                result.append((cell, 0))
+
+    # Sort the result for consistency (optional)
+    result = sorted(result, key=lambda x: (-x[0][1], x[0][0]))
+
+    return result
 
 
 def pprint(state: State, size: int):
@@ -191,8 +188,8 @@ def pprint(state: State, size: int):
         if i > 0:
             print(i * "_ ", end="")
         while sorted_state[j][0][1] == i:
-            print(sorted_state[j][0], sorted_state[j][1], end=" ")
-            #print(sorted_state[j][1], end=" ")
+            #print(sorted_state[j][0], sorted_state[j][1], end=" ")
+            print(sorted_state[j][1], end=" ")
 
             j += 1
             if j > len(sorted_state) - 1:
@@ -202,36 +199,16 @@ def pprint(state: State, size: int):
         print("\n")
 
 
-'''
-TO REVIEW/TEST: 
-    - hashage de zobrist: amen  //review
-    - fonction de hashage: amen //review
-
-    //on va probablement utiliser ces 2 fonctions avec une profondeur limitée
-    -alphabeta_dodo_depth
-    -alpha_beta_action
-    -strategy_alphabeta_dodo
-
-TODO:
-    AMEN
-    - fonction d'évaluation: amen
-
-
-
-
-
-
-'''
 
 # seed, une valeur globale initialisé à une valeur random,
 # qui permettra la generation de valaurs pseudo-aléatoires
-seed: int = random.randint(0, 2 ** 32)
+seed: int = 2847572934
 
 
 def generate_random_value() -> int:
     """une fonction qui génère un nombre pseudo-aléatoire"""
-    a: int = random.randint(0, 2 ** 32)
-    b: int = random.randint(0, 2 ** 32)
+    a: int = 1535820267
+    b: int = 3892683005
     global seed
     seed = (a * seed + b) % (2 ** 32)
     return seed
@@ -257,7 +234,7 @@ def hash_zobrist(state: State) -> int:
     h = 0
     for item in state:
         if item[1] != 0:
-            h = UNIQUE_VALUES[item]
+            h ^= UNIQUE_VALUES[item]
     return h
 
 
@@ -311,7 +288,7 @@ def generate_symmetric_states(state: State) -> [State]:
 
 
 # Function to save cache to a file
-def save_cache_to_file(cache: Dict[int, Tuple[Score, Action]], filename: str):
+def save_cache_to_file(cache: Dict[int, Tuple[Score, Action]], filename: str)->None:
     existing_cache = load_cache_from_file(filename)
     existing_cache.update(cache)
     with open(filename, 'w', newline='') as file:
@@ -330,60 +307,13 @@ def load_cache_from_file(filename: str) -> Dict[int, Tuple[Score, Action]]:
                 key = int(row[0])
                 score = float(row[1])
                 action = json.loads(row[2])  # Use JSON to parse the action
-                if isinstance(action, list):
+                if isinstance(action[0], list):
                     action = tuple(tuple(x) for x in action)  # Convert to tuple of tuples if needed
                 cache[key] = (score, action)
     except FileNotFoundError:
         pass
-    print("cache loaded")
+    #print("cache loaded")
     return cache
 
 
-# Memoize function for Dodo
-def memoize_dodo(f: Callable[[State, Player], Tuple[Score, ActionDodo]], cache_file: str = 'cachedodo.csv') -> Callable[
-    [State, Player], Tuple[Score, ActionDodo]]:
-    cache: Dict[int, Tuple[Score, ActionDodo]] = load_cache_from_file(cache_file)  # Load cache from file
 
-    def g(state: State, player: Player) -> Tuple[Score, ActionDodo]:
-        symmetric_states = generate_symmetric_states(state)
-        hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
-
-        for hashed_value in hashed_values:
-            if hashed_value in cache:
-                return cache[hashed_value]
-
-        val = f(state, player)
-        for hashed_value in hashed_values:
-            cache[hashed_value] = val
-
-        return val
-
-    # Register the cache saving function to be called on program exit
-    atexit.register(save_cache_to_file, cache, cache_file)
-
-    return g
-
-
-# Memoize function for Gopher
-def memoize_gopher(f: Callable[[State, Player], Tuple[Score, ActionGopher]], cache_file: str = 'cachegopher.csv') -> \
-Callable[[State, Player], Tuple[Score, ActionGopher]]:
-    cache: Dict[int, Tuple[Score, ActionGopher]] = load_cache_from_file(cache_file)  # Load cache from file
-
-    def g(state: State, player: Player) -> Tuple[Score, ActionGopher]:
-        symmetric_states = generate_symmetric_states(state)
-        hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
-
-        for hashed_value in hashed_values:
-            if hashed_value in cache:
-                return cache[hashed_value]
-
-        val = f(state, player)
-        for hashed_value in hashed_values:
-            cache[hashed_value] = val
-
-        return val
-
-    # Register the cache saving function to be called on program exit
-    atexit.register(save_cache_to_file, cache, cache_file)
-
-    return g
