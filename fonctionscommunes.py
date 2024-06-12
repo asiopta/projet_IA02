@@ -73,40 +73,6 @@ def adversaire(player: Player) -> Player:
         return 0
 
 
-'''
-def voisins(cellule: Cell, grid: Environment) -> list[Cell]:
-    """appliquable pour dodo et gopher"""
-    result: list[Cell] = []
-    cell_mutable = [cellule[0], cellule[1]]
-
-    new_cell = (cell_mutable[0], cell_mutable[1] + 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] + 1, cell_mutable[1])
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] + 1, cell_mutable[1] + 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0], cell_mutable[1] - 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] - 1, cell_mutable[1])
-    if new_cell in grid:
-        result.append(new_cell)
-
-    new_cell = (cell_mutable[0] - 1, cell_mutable[1] - 1)
-    if new_cell in grid:
-        result.append(new_cell)
-
-    return result
-'''
-
-
 def voisins(cellule: Cell, grid: Grid) -> list[Cell]:
     """Applicable for dodo and gopher."""
     result: list[Cell] = []
@@ -129,36 +95,6 @@ def voisins(cellule: Cell, grid: Grid) -> list[Cell]:
 
     return result
 
-
-'''
-def empty_state(n: Taille) -> State:
-    """appliquable pour gopher"""
-    result: State = []
-    n = n - 1
-    for i in range(-n, 1, 1):
-        for j in range(-n, 1, 1):
-            cell: Cell = (i, j)
-            result.append((cell, 0))
-    for i in range(0, n + 1, 1):
-        for j in range(0, n + 1, 1):
-            if i == j == 0:
-                pass
-            else:
-                cell: Cell = (i, j)
-                result.append((cell, 0))
-
-    for i in range(2, n):
-        result.append(((-1, i), 0))
-        result.append(((i, -1), 0))
-        result.append(((1, -i), 0))
-        result.append(((-i, 1), 0))
-    l = n // 2
-    for i in range(1, l + 1):
-        result.append(((-i, i), 0))
-        result.append(((i, -i), 0))
-
-    return result
-'''
 
 def empty_state(size: int) -> State:
     result: State = []
@@ -225,7 +161,7 @@ def state_keys(state: State):
 
 
 # un dictionnaire contenant la valeur unique de chaque Combinaison (Cellule, Player) possible
-UNIQUE_VALUES = state_keys(empty_state(4))
+UNIQUE_VALUES = state_keys(empty_state(8))
 
 
 def hash_zobrist(state: State) -> int:
@@ -236,13 +172,6 @@ def hash_zobrist(state: State) -> int:
         if item[1] != 0:
             h ^= UNIQUE_VALUES[item]
     return h
-
-
-'''
-def vertical_symeric_point(cell:Cell) : 
-        q, r = cellule
-        return (-q, r)
-'''
 
 
 def inverse_vertical_axis(state: State):
