@@ -240,6 +240,7 @@ def gopher(strategy_X: Strategy, strategy_O: Strategy, size: int) -> Score:
         state = play_gopher(state, action_1, 1)
         print("----------------joueur1-----------------------")
         print()
+        print(action_1)
         pprint(state, size)
 
         print(final_gopher(state, 2))
@@ -249,6 +250,7 @@ def gopher(strategy_X: Strategy, strategy_O: Strategy, size: int) -> Score:
             state = play_gopher(state, action_2, 2)
             print("----------------joueur2-----------------------")
             print()
+            print(action_2)
             pprint(state, size)
         else:
             return score_gopher(state, 2)
