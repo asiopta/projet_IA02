@@ -1,0 +1,31 @@
+from dodo import*
+from gopher import *
+
+# fonctions communs à tt le monde
+def initialize(game: str, state: State, player: Player, hex_size: int, total_time: Time) -> Environment:
+    '''Cette fonction est lancée au début du jeu.
+    Elle dit à quel jeu on joue, le joueur que l'on est et renvoie l'environnement '''
+    if(game== "Dodo" or game == "dodo" or game == "DODO"):
+        strategy = strategy_alphabeta_dodo(state, player)
+        #global cache
+        #cache = load_cache_from_file("cachedodo2.csv")
+        #return cache
+    elif (game == "gopher" or game == "Gopher" or game == "GOPHER"):
+        strategy = strategy_alphabeta_gopher(state, player)
+        #global cache
+        #cache = load_cache_from_file("cachegopher.csv")
+        #return cache
+
+
+
+
+def strategy(env: Grid, state: State, player: Player, time_left: Time) -> tuple[Environment, Action]:
+    '''Cette fonction est la strategie qu'on utilise pour jouer.
+    Cette fonction est lancée à chaque fois que c'est à notre joueur de jouer.'''
+    print()
+
+
+def final_result(state: State, score: Score, player: Player) -> tuple[Player, State, Score]:
+    '''Cette fonction est appelée à la fin du jeu
+    et renvoie le joueur gagnant, l'état final et le score'''
+    print()
