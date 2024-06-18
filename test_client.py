@@ -18,22 +18,21 @@ def initialize(
     print(f"{game} playing {player} on a grid of size {hex_size}. Time remaining: {total_time}")
     if game == "gopher":
         env["game"] = "gopher"
-        strategy = strategy_alphabeta_gopher
     elif game == "dodo":
         env["game"] = "dodo"
-        strategy = strategy_alphabeta_dodo
 
-
+    env["total_time"] = total_time
+    env["size"] = hex_size
     return env
 
 
 def strategy(env: Environment, state: State, player: Player, time_left: Time) -> tuple[Environment, Action]:
     '''Cette fonction est la strategie qu'on utilise pour jouer.
     Cette fonction est lancée à chaque fois que c'est à notre joueur de jouer.'''
-    if(env["game"] == "gopher"):
-        return (env, strategy_alphabeta_gopher(state, player, time_left))
+    if env["game"] == "gopher":
+        return (env, strategy_alphabeta_gopher(state, player, time_left, env["total_time"], env["size"]))
     elif env["game"] == "dodo":
-        return (env, strategy_alphabeta_dodo(state, player, time_left))
+        return (env, strategy_alphabeta_dodo(state, player, time_left, env["total_time"], env["size"]))
 
 
 def final_result(state: State, score: Score, player: Player):
