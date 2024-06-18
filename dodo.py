@@ -1,6 +1,7 @@
 from fonctionscommunes import *
 import math
 
+
 def initial_state_dodo() -> State:
     result: State = []
     # joueur 1
@@ -103,7 +104,6 @@ def final_dodo(state: State, tour: Player) -> bool:
     return legals_dodo(state, tour) == []
 
 
-
 def score_dodo(state: State, tour: Player) -> Score:
     if final_dodo(state, tour):
         if tour == 1:
@@ -122,6 +122,7 @@ def play_dodo(state: State, action: ActionDodo, tour: Player) -> State:
         grid[action[1]] = tour
     return environnement_to_state(grid)
 
+
 '''
 def evaluation_state_dodo(state: State, tour: Player) -> Score:
     """fonction d'évaluation de l'état d'un jeu DODO"""
@@ -137,6 +138,8 @@ def evaluation_state_dodo(state: State, tour: Player) -> Score:
         return diff_int / (nb_legals_adversaire + nb_legals_player)
 
 '''
+
+
 def centrality_score(cell: Cell) -> float:
     center = (0, 0)
     distance = abs(cell[0] - center[0]) + abs(cell[1] - center[1])
@@ -170,7 +173,6 @@ def evaluation_state_dodo(state: State, tour: Player) -> Score:
 
     # Combine factors with appropriate weights
     return (0.6 * mobility_score) + (0.2 * centrality_diff) + (0.2 * blocking_score)
-
 
 
 # stratégie alpha-beta
@@ -228,12 +230,13 @@ def alphabeta_dodo_depth(state: State, tour: Player, depth: int, alpha: float, b
 maximizing_player: Player = 1
 minimizing_player: Player = 2
 
+
 # Memoize function for Dodo
-def memoize_dodo(f: Callable[[State, Player], Tuple[Score, ActionDodo]], cache_file: str = 'cachedodo2.csv') -> Callable[
-    [State, Player], Tuple[Score, ActionDodo]]:
+def memoize_dodo(f: Callable[[State, Player, int], Tuple[Score, ActionDodo]], cache_file: str = 'cachedodo2.csv') -> \
+        Callable[[State, Player, int], Tuple[Score, ActionDodo]]:
     cache: Dict[int, Tuple[Score, ActionDodo]] = load_cache_from_file(cache_file)  # Load cache from file
 
-    def g(state: State, player: Player) -> Tuple[Score, ActionDodo]:
+    def g(state: State, player: Player, depth: int) -> Tuple[Score, ActionDodo]:
         symmetric_states = generate_symmetric_states(state)
         hashed_values = [hash_zobrist(sym_state) for sym_state in symmetric_states]
 
@@ -241,7 +244,7 @@ def memoize_dodo(f: Callable[[State, Player], Tuple[Score, ActionDodo]], cache_f
             if hashed_value in cache:
                 return cache[hashed_value]
 
-        val = f(state, player)
+        val = f(state, player, depth)
         for hashed_value in hashed_values:
             cache[hashed_value] = val
 
@@ -279,7 +282,7 @@ def alphabeta_action_dodo(state: State, tour: Player, alpha=-100, beta=100) -> t
 
 
 @memoize_dodo
-def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100) -> tuple[Score, ActionDodo]:
+def alphabeta_action_dodo_depth(state: State, tour: Player, depth, alpha=-100, beta=100) -> tuple[Score, ActionDodo]:
     """alphabeta avec action avec depth limité"""
     if final_dodo(state, tour):
         return score_dodo(state, tour), ((4, 4), (4, 4))
@@ -288,7 +291,7 @@ def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100
         best_action: Action = actions_legales[0]
         best_score: Score = -10000
         for action in actions_legales:
-            bla = alphabeta_dodo_depth(play_dodo(state, action, tour), minimizing_player, 3, alpha, beta)
+            bla = alphabeta_dodo_depth(play_dodo(state, action, tour), minimizing_player, depth, alpha, beta)
             if bla > best_score:
                 best_score = bla
                 best_action = action
@@ -297,7 +300,7 @@ def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100
         best_action: Action = actions_legales[0]
         best_score: Score = 10000
         for action in actions_legales:
-            bla = alphabeta_dodo_depth(play_dodo(state, action, tour), maximizing_player, 3, alpha, beta)
+            bla = alphabeta_dodo_depth(play_dodo(state, action, tour), maximizing_player, depth, alpha, beta)
             if bla < best_score:
                 best_score = bla
                 best_action = action
@@ -305,8 +308,15 @@ def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100
     return best_score, best_action
 
 
-def strategy_alphabeta_dodo(state: State, tour: Player, time_left: int) -> ActionDodo:
-    best_score, best_action = alphabeta_action_dodo_depth(state, tour)
+def strategy_alphabeta_dodo(state: State, tour: Player, time_left: int, total_time: int, size: int) -> ActionDodo:
+    if size <= 4 and (time_left > (95 * total_time) / 100 or time_left < 45):
+        best_score, best_action = alphabeta_action_dodo_depth(state, tour, 2)
+    elif size >= 6 and (time_left > (70 * total_time) / 100 or time_left < 45):
+        best_score, best_action = alphabeta_action_dodo_depth(state, tour, 2)
+    elif time_left > (40 * total_time):
+        best_score, best_action = alphabeta_action_dodo_depth(state, tour, 4)
+    else:
+        best_score, best_action = alphabeta_action_dodo_depth(state, tour, 3)
     return best_action
 
 
@@ -383,8 +393,9 @@ def MCTS(state: State, player: Player, iterations: int) -> ActionDodo:
 
     return max(root.children, key=lambda c: c[0].wins / c[0].visits)[1]
 
+
 # boucle de jeu
-def dodo(strategy_X: Strategy, strategy_O: Strategy, size:int = 4) -> Score:
+def dodo(strategy_X: Strategy, strategy_O: Strategy, _size: int = 4) -> Score:
     state: State = initial_state_dodo()
     while not final_dodo(state, 1):
         action_1: Action = strategy_X(state, 1)
