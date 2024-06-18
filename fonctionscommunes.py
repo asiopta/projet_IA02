@@ -24,27 +24,6 @@ maximizing_player: Player
 minimizing_player: Player
 
 
-
-'''
-TODO:
-
-ISMAT
-- fonction qui inverse la position par rapport au couleur
-- fonction qui inverse la positions par rapport l'axe vertical
-- une fonction qui gère le jeu (le tour des joueurs)
-    Dodo(strategy_1, strategy_2) -> Score
-
-
-//meme chose pr gopher
-    - legals_gopher()
-    - final_gopher()
-    - score_gopher()
-    - play_gopher()
-    - alphabeta_gopher()
-
-'''
-
-
 # Nos fonctions à nous
 def state_to_environnement(state: State) -> Grid:
     """gopher et dodo"""
