@@ -140,7 +140,7 @@ def state_keys(state: State):
 
 
 # un dictionnaire contenant la valeur unique de chaque Combinaison (Cellule, Player) possible
-UNIQUE_VALUES = state_keys(empty_state(8))
+UNIQUE_VALUES = state_keys(empty_state(12))
 
 
 def hash_zobrist(state: State) -> int:
