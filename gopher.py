@@ -221,7 +221,7 @@ def alphabeta_action_gopher_depth(state: State, tour: Player, alpha=-10000, beta
     return best_score, best_action
 
 
-def strategy_alphabeta_gopher(state: State, tour: Player) -> ActionGopher:
+def strategy_alphabeta_gopher(state: State, tour: Player, time_left: int) -> ActionGopher:
     best_score, best_action = alphabeta_action_gopher_depth(state, tour)
     return best_action
 
