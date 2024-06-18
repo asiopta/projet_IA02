@@ -305,7 +305,7 @@ def alphabeta_action_dodo_depth(state: State, tour: Player, alpha=-100, beta=100
     return best_score, best_action
 
 
-def strategy_alphabeta_dodo(state: State, tour: Player) -> ActionDodo:
+def strategy_alphabeta_dodo(state: State, tour: Player, time_left: int) -> ActionDodo:
     best_score, best_action = alphabeta_action_dodo_depth(state, tour)
     return best_action
 
